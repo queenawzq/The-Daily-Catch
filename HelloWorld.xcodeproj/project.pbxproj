@@ -7,15 +7,43 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA000001 /* HelloWorldApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002 /* HelloWorldApp.swift */; };
-		AA000003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000004 /* ContentView.swift */; };
+		AA000001 /* TheDailyCatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002 /* TheDailyCatchApp.swift */; };
+		AA100001 /* IdentityMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100002 /* IdentityMode.swift */; };
+		AA100003 /* EnergyMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100004 /* EnergyMode.swift */; };
+		AA100005 /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100006 /* Story.swift */; };
+		AA100007 /* DailyBrief.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100008 /* DailyBrief.swift */; };
+		AA200001 /* OpenRouterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200002 /* OpenRouterService.swift */; };
+		AA200003 /* BriefCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200004 /* BriefCacheService.swift */; };
+		AA200005 /* UserPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200006 /* UserPreferencesService.swift */; };
+		AA300001 /* DailyBriefViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA300002 /* DailyBriefViewModel.swift */; };
+		AA400001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400002 /* OnboardingView.swift */; };
+		AA400003 /* DailyBriefView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400004 /* DailyBriefView.swift */; };
+		AA400005 /* StoryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400006 /* StoryCardView.swift */; };
+		AA400007 /* CompletionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400008 /* CompletionView.swift */; };
+		AA400009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400010 /* SettingsView.swift */; };
+		AA500001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500002 /* AppTheme.swift */; };
+		AA600001 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA600002 /* Secrets.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		AA000002 /* HelloWorldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelloWorldApp.swift; sourceTree = "<group>"; };
-		AA000004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AA000002 /* TheDailyCatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheDailyCatchApp.swift; sourceTree = "<group>"; };
 		AA000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA000006 /* HelloWorld.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloWorld.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA000006 /* The Daily Catch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "The Daily Catch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA100002 /* IdentityMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityMode.swift; sourceTree = "<group>"; };
+		AA100004 /* EnergyMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnergyMode.swift; sourceTree = "<group>"; };
+		AA100006 /* Story.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
+		AA100008 /* DailyBrief.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBrief.swift; sourceTree = "<group>"; };
+		AA200002 /* OpenRouterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenRouterService.swift; sourceTree = "<group>"; };
+		AA200004 /* BriefCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefCacheService.swift; sourceTree = "<group>"; };
+		AA200006 /* UserPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesService.swift; sourceTree = "<group>"; };
+		AA300002 /* DailyBriefViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefViewModel.swift; sourceTree = "<group>"; };
+		AA400002 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		AA400004 /* DailyBriefView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefView.swift; sourceTree = "<group>"; };
+		AA400006 /* StoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
+		AA400008 /* CompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionView.swift; sourceTree = "<group>"; };
+		AA400010 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA500002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		AA600002 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,46 +60,101 @@
 		AA000020 /* = */ = {
 			isa = PBXGroup;
 			children = (
-				AA000021 /* HelloWorld */,
+				AA000021 /* TheDailyCatch */,
 				AA000022 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		AA000021 /* HelloWorld */ = {
+		AA000021 /* TheDailyCatch */ = {
 			isa = PBXGroup;
 			children = (
-				AA000002 /* HelloWorldApp.swift */,
-				AA000004 /* ContentView.swift */,
+				AA000002 /* TheDailyCatchApp.swift */,
 				AA000005 /* Info.plist */,
+				AA600002 /* Secrets.plist */,
+				AA100000 /* Models */,
+				AA200000 /* Services */,
+				AA300000 /* ViewModels */,
+				AA400000 /* Views */,
+				AA500000 /* Theme */,
 			);
-			path = HelloWorld;
+			path = TheDailyCatch;
 			sourceTree = "<group>";
 		};
 		AA000022 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA000006 /* HelloWorld.app */,
+				AA000006 /* The Daily Catch.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		AA100000 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA100002 /* IdentityMode.swift */,
+				AA100004 /* EnergyMode.swift */,
+				AA100006 /* Story.swift */,
+				AA100008 /* DailyBrief.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA200000 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA200002 /* OpenRouterService.swift */,
+				AA200004 /* BriefCacheService.swift */,
+				AA200006 /* UserPreferencesService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA300000 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				AA300002 /* DailyBriefViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		AA400000 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA400002 /* OnboardingView.swift */,
+				AA400004 /* DailyBriefView.swift */,
+				AA400006 /* StoryCardView.swift */,
+				AA400008 /* CompletionView.swift */,
+				AA400010 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA500000 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				AA500002 /* AppTheme.swift */,
+			);
+			path = Theme;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AA000030 /* HelloWorld */ = {
+		AA000030 /* TheDailyCatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA000050 /* Build configuration list for PBXNativeTarget "HelloWorld" */;
+			buildConfigurationList = AA000050 /* Build configuration list for PBXNativeTarget "TheDailyCatch" */;
 			buildPhases = (
 				AA000011 /* Sources */,
 				AA000010 /* Frameworks */,
+				AA000012 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = HelloWorld;
-			productName = HelloWorld;
-			productReference = AA000006 /* HelloWorld.app */;
+			name = TheDailyCatch;
+			productName = "The Daily Catch";
+			productReference = AA000006 /* The Daily Catch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -97,18 +180,42 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA000030 /* HelloWorld */,
+				AA000030 /* TheDailyCatch */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA000012 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA600001 /* Secrets.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AA000011 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA000001 /* HelloWorldApp.swift in Sources */,
-				AA000003 /* ContentView.swift in Sources */,
+				AA000001 /* TheDailyCatchApp.swift in Sources */,
+				AA100001 /* IdentityMode.swift in Sources */,
+				AA100003 /* EnergyMode.swift in Sources */,
+				AA100005 /* Story.swift in Sources */,
+				AA100007 /* DailyBrief.swift in Sources */,
+				AA200001 /* OpenRouterService.swift in Sources */,
+				AA200003 /* BriefCacheService.swift in Sources */,
+				AA200005 /* UserPreferencesService.swift in Sources */,
+				AA300001 /* DailyBriefViewModel.swift in Sources */,
+				AA400001 /* OnboardingView.swift in Sources */,
+				AA400003 /* DailyBriefView.swift in Sources */,
+				AA400005 /* StoryCardView.swift in Sources */,
+				AA400007 /* CompletionView.swift in Sources */,
+				AA400009 /* SettingsView.swift in Sources */,
+				AA500001 /* AppTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,15 +227,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				CODE_SIGNING_REQUIRED = NO;
-				INFOPLIST_FILE = HelloWorld/Info.plist;
+				INFOPLIST_FILE = TheDailyCatch/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HelloWorld;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dailycatch.app;
+				PRODUCT_NAME = "The Daily Catch";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -139,15 +248,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				CODE_SIGNING_REQUIRED = NO;
-				INFOPLIST_FILE = HelloWorld/Info.plist;
+				INFOPLIST_FILE = TheDailyCatch/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HelloWorld;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dailycatch.app;
+				PRODUCT_NAME = "The Daily Catch";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -198,7 +309,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA000050 /* Build configuration list for PBXNativeTarget "HelloWorld" */ = {
+		AA000050 /* Build configuration list for PBXNativeTarget "TheDailyCatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA000051 /* Debug */,
