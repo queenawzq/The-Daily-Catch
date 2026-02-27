@@ -96,14 +96,9 @@ struct StoryDetailView: View {
                                 }
                             } else {
                                 // All stories viewed → show caught up
-                                withAnimation(.easeInOut(duration: 0.25)) {
-                                    dragOffset = -UIScreen.main.bounds.width
-                                }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        showCaughtUp = true
-                                    }
-                                    dragOffset = 0
+                                dragOffset = 0
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showCaughtUp = true
                                 }
                             }
                         } else if horizontal > 0 && showCaughtUp {
