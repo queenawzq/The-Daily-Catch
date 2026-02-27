@@ -2,114 +2,235 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedModes: Set<IdentityMode>
-    @State private var selectedEnergy: EnergyMode
+    @State private var selectedLifeStage: LifeStage?
+    @State private var selectedTopics: Set<TopicInterest>
+    @State private var selectedMotivation: ReadingMotivation?
+    @State private var expandedSection: Int? = nil
     var onSave: () -> Void
 
     init(onSave: @escaping () -> Void) {
         let prefs = UserPreferencesService.shared
-        _selectedModes = State(initialValue: Set(prefs.selectedIdentityModes))
-        _selectedEnergy = State(initialValue: prefs.selectedEnergyMode)
+        _selectedLifeStage = State(initialValue: prefs.selectedLifeStage)
+        _selectedTopics = State(initialValue: Set(prefs.selectedTopics))
+        _selectedMotivation = State(initialValue: prefs.selectedMotivation)
         self.onSave = onSave
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                AppTheme.backgroundGradient
+                Color(hex: "E8E7E5")
                     .ignoresSafeArea()
 
+                VStack(spacing: 0) {
+                    // Custom header
+                    HStack {
+                        Text("CANCEL")
+                            .font(AppTheme.mono(14, weight: .bold))
+                            .foregroundStyle(AppTheme.textDark.opacity(0.6))
+                            .onTapGesture { dismiss() }
+
+                        Spacer()
+
+                        Text("SETTINGS")
+                            .font(AppTheme.mono(14, weight: .bold))
+                            .foregroundStyle(AppTheme.textDark)
+
+                        Spacer()
+
+                        Text("SAVE")
+                            .font(AppTheme.mono(14, weight: .bold))
+                            .foregroundStyle(Color(hex: "5D84C4"))
+                            .onTapGesture {
+                                let prefs = UserPreferencesService.shared
+                                let changed = prefs.selectedLifeStage != selectedLifeStage
+                                    || Set(prefs.selectedTopics) != selectedTopics
+                                    || prefs.selectedMotivation != selectedMotivation
+                                prefs.selectedLifeStage = selectedLifeStage
+                                prefs.selectedTopics = Array(selectedTopics)
+                                prefs.selectedMotivation = selectedMotivation
+                                dismiss()
+                                if changed {
+                                    onSave()
+                                }
+                            }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 12)
+
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        // Identity modes
-                        sectionHeader("Your Identity")
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            ForEach(IdentityMode.allCases) { mode in
-                                IdentityCard(
-                                    mode: mode,
-                                    isSelected: selectedModes.contains(mode)
-                                ) {
-                                    if selectedModes.contains(mode) {
-                                        if selectedModes.count > 1 {
-                                            selectedModes.remove(mode)
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Section 1: Life Stage
+                        collapsibleSection(
+                            index: 1,
+                            title: "WHERE ARE YOU RIGHT NOW?",
+                            summary: selectedLifeStage?.displayName ?? "Not set"
+                        ) {
+                            VStack(spacing: 10) {
+                                ForEach(LifeStage.allCases) { stage in
+                                    settingsRow(
+                                        emoji: stage.emoji,
+                                        label: stage.displayName.uppercased(),
+                                        isSelected: selectedLifeStage == stage
+                                    ) {
+                                        selectedLifeStage = stage
+                                    }
+                                }
+                            }
+                        }
+
+                        // Section 2: Topics
+                        collapsibleSection(
+                            index: 2,
+                            title: "WHAT DO YOU ACTUALLY CARE ABOUT?",
+                            summary: "\(selectedTopics.count) selected"
+                        ) {
+                            ScrollView {
+                                VStack(spacing: 10) {
+                                    ForEach(TopicInterest.allCases) { topic in
+                                        let isSelected = selectedTopics.contains(topic)
+                                        Button {
+                                            if isSelected {
+                                                if selectedTopics.count > 1 {
+                                                    selectedTopics.remove(topic)
+                                                }
+                                            } else {
+                                                selectedTopics.insert(topic)
+                                            }
+                                        } label: {
+                                            HStack(spacing: 14) {
+                                                Text(topic.emoji)
+                                                    .font(.title2)
+                                                Text(topic.displayName.uppercased())
+                                                    .font(AppTheme.mono(13, weight: .bold))
+                                                    .foregroundStyle(AppTheme.textDark)
+                                                Spacer()
+                                                Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                                                    .foregroundStyle(isSelected ? AppTheme.textDark : AppTheme.textMidGrey)
+                                                    .font(.title3)
+                                            }
+                                            .padding(.horizontal, 20)
+                                            .padding(.vertical, 14)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isSelected ? Color(hex: "CEDCE9") : Color(hex: "F2F2F2"))
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                            .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
                                         }
-                                    } else {
-                                        selectedModes.insert(mode)
+                                    }
+                                }
+                                .padding(.bottom, 6)
+                            }
+                            .padding(.horizontal, 6)
+                            .scrollIndicators(.visible)
+                            .frame(maxHeight: 420)
+                            .padding(.horizontal, -6)
+                        }
+
+                        // Section 3: Motivation
+                        collapsibleSection(
+                            index: 3,
+                            title: "WHY DO YOU WANT TO STAY INFORMED?",
+                            summary: selectedMotivation?.displayName ?? "Not set"
+                        ) {
+                            VStack(spacing: 10) {
+                                ForEach(ReadingMotivation.allCases) { motivation in
+                                    settingsRow(
+                                        emoji: motivation.emoji,
+                                        label: motivation.displayName.uppercased(),
+                                        isSelected: selectedMotivation == motivation
+                                    ) {
+                                        selectedMotivation = motivation
                                     }
                                 }
                             }
                         }
-
-                        // Energy mode
-                        sectionHeader("Energy Level")
-                        HStack(spacing: 12) {
-                            ForEach(EnergyMode.allCases) { mode in
-                                Button {
-                                    selectedEnergy = mode
-                                } label: {
-                                    VStack(spacing: 6) {
-                                        Text(mode.emoji)
-                                            .font(.title)
-                                        Text(mode.displayName)
-                                            .font(.subheadline.weight(.semibold))
-                                            .foregroundStyle(AppTheme.textPrimary)
-                                        Text(mode == .quick ? "~30 words" : "~100 words")
-                                            .font(.caption)
-                                            .foregroundStyle(AppTheme.textSecondary)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 16)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(selectedEnergy == mode ? AppTheme.accent.opacity(0.3) : AppTheme.cardBackground)
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(selectedEnergy == mode ? AppTheme.accent : Color.clear, lineWidth: 2)
-                                    )
-                                }
-                            }
-                        }
-
-                        // About
-                        sectionHeader("About")
-                        Text("The Daily Catch delivers your personalized news brief powered by AI. Stories are fetched in real-time and summarized just for you.")
-                            .font(.subheadline)
-                            .foregroundStyle(AppTheme.textSecondary)
-                            .padding(16)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(AppTheme.cardBackground)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .padding(20)
+                    .padding(.leading, 24)
+                    .padding(.trailing, 30)
+                    .padding(.top, 16)
+                    .padding(.bottom, 32)
                 }
+                } // VStack
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(AppTheme.textSecondary)
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        let prefs = UserPreferencesService.shared
-                        prefs.selectedIdentityModes = Array(selectedModes)
-                        prefs.selectedEnergyMode = selectedEnergy
-                        dismiss()
-                        onSave()
+            .navigationBarHidden(true)
+        }
+    }
+
+    // MARK: - Collapsible Section
+
+    private func collapsibleSection<Content: View>(
+        index: Int,
+        title: String,
+        summary: String,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                expandedSection = expandedSection == index ? nil : index
+            } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(AppTheme.headline(16, weight: .bold))
+                            .foregroundStyle(AppTheme.textDark)
+                            .multilineTextAlignment(.leading)
+                        if expandedSection != index {
+                            Text(summary)
+                                .font(.custom("SpaceGrotesk-Light", size: 13).weight(.medium))
+                                .foregroundStyle(AppTheme.textDark.opacity(0.5))
+                        }
                     }
-                    .foregroundStyle(AppTheme.accent)
-                    .fontWeight(.semibold)
+                    Spacer()
+                    Image(systemName: expandedSection == index ? "chevron.up" : "chevron.down")
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(AppTheme.textDark.opacity(0.4))
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
+            }
+
+            if expandedSection == index {
+                content()
             }
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.headline)
-            .foregroundStyle(AppTheme.textPrimary)
+    // MARK: - Settings Row (single select)
+
+    private func settingsRow(emoji: String, label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Text(emoji)
+                    .font(.title2)
+                Text(label)
+                    .font(AppTheme.mono(13, weight: .bold))
+                    .foregroundStyle(AppTheme.textDark)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(AppTheme.textDark)
+                        .font(.body.weight(.bold))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isSelected ? Color(hex: "CEDCE9") : Color(hex: "F2F2F2"))
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
+        }
     }
 }

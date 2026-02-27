@@ -23,6 +23,12 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Junicode-BoldCondensed.ttf</string>
+		<string>SpaceGrotesk-VariableFont_wght.ttf</string>
+		<string>Disket-Mono-Bold.ttf</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>
