@@ -38,7 +38,9 @@ struct TheDailyCatchApp: App {
                     }
 
                 case .mainFeed:
-                    DailyBriefView(viewModel: viewModel)
+                    DailyBriefView(viewModel: viewModel, onReset: {
+                        withAnimation { appState = .splash }
+                    })
                         .preferredColorScheme(.dark)
                 }
             }

@@ -10,6 +10,7 @@ struct StoryDetailView: View {
     @State private var isDeepMode = false
     @State private var dragOffset: CGFloat = 0
     @State private var showCaughtUp = false
+    @State private var viewedIndices: Set<Int> = []
 
     private let bgColor = Color(hex: "D6D6D6")
     private let darkText = Color(hex: "2A2A2A")
@@ -20,36 +21,38 @@ struct StoryDetailView: View {
         self.onClose = onClose
         self.onStoryViewed = onStoryViewed
         self._currentIndex = State(initialValue: initialIndex)
+        self._viewedIndices = State(initialValue: [initialIndex])
     }
 
     private var story: Story { stories[currentIndex] }
+    private var allViewed: Bool { viewedIndices.count >= stories.count }
 
     var body: some View {
         ZStack(alignment: .top) {
+            bgColor.ignoresSafeArea()
+
+            Image("NewsPageBackground")
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity)
+                .clipped()
+                .padding(.top, 46)
+
+            VStack(spacing: 0) {
+                topBar
+                storyContent
+                    .offset(x: dragOffset)
+            }
+
+            VStack {
+                Spacer()
+                pageIndicator
+                    .padding(.bottom, 40)
+            }
+
             if showCaughtUp {
                 caughtUpView
                     .transition(.move(edge: .trailing))
-            } else {
-                bgColor.ignoresSafeArea()
-
-                Image("NewsPageBackground")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .padding(.top, 46)
-
-                VStack(spacing: 0) {
-                    topBar
-                    storyContent
-                        .offset(x: dragOffset)
-                }
-
-                VStack {
-                    Spacer()
-                    pageIndicator
-                        .padding(.bottom, 40)
-                }
             }
         }
         .gesture(
@@ -66,29 +69,42 @@ struct StoryDetailView: View {
 
                     if abs(horizontal) > abs(vertical) && abs(horizontal) > 80 {
                         // Horizontal swipe
-                        if horizontal < 0 && currentIndex < stories.count - 1 {
-                            // Swipe left → next story
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                dragOffset = -UIScreen.main.bounds.width
+                        if horizontal < 0 && !showCaughtUp {
+                            // Swipe left → next story or wrap or caught up
+                            let nextIndex: Int?
+                            if currentIndex < stories.count - 1 {
+                                nextIndex = currentIndex + 1
+                            } else if !allViewed {
+                                // Wrap to first unviewed story
+                                nextIndex = (0..<stories.count).first { !viewedIndices.contains($0) }
+                            } else {
+                                nextIndex = nil // all viewed, show caught up
                             }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                currentIndex += 1
-                                onStoryViewed(stories[currentIndex])
-                                dragOffset = UIScreen.main.bounds.width
+
+                            if let next = nextIndex {
                                 withAnimation(.easeInOut(duration: 0.25)) {
+                                    dragOffset = -UIScreen.main.bounds.width
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                    currentIndex = next
+                                    viewedIndices.insert(next)
+                                    onStoryViewed(stories[next])
+                                    dragOffset = UIScreen.main.bounds.width
+                                    withAnimation(.easeInOut(duration: 0.25)) {
+                                        dragOffset = 0
+                                    }
+                                }
+                            } else {
+                                // All stories viewed → show caught up
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    dragOffset = -UIScreen.main.bounds.width
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        showCaughtUp = true
+                                    }
                                     dragOffset = 0
                                 }
-                            }
-                        } else if horizontal < 0 && currentIndex == stories.count - 1 {
-                            // Swipe left on last story → show caught up
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                dragOffset = -UIScreen.main.bounds.width
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    showCaughtUp = true
-                                }
-                                dragOffset = 0
                             }
                         } else if horizontal > 0 && showCaughtUp {
                             // Swipe right from caught up → back to last story
@@ -103,6 +119,7 @@ struct StoryDetailView: View {
                             }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                                 currentIndex -= 1
+                                viewedIndices.insert(currentIndex)
                                 onStoryViewed(stories[currentIndex])
                                 dragOffset = -UIScreen.main.bounds.width
                                 withAnimation(.easeInOut(duration: 0.25)) {
@@ -354,6 +371,7 @@ struct StoryDetailView: View {
                         .padding(.trailing, 30)
                         .offset(y: -30)
                 }
+                .padding(.top, 70)
 
                 Spacer()
 

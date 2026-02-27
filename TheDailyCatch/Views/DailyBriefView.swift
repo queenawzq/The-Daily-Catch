@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DailyBriefView: View {
     @Bindable var viewModel: DailyBriefViewModel
+    var onReset: () -> Void = {}
     @State private var showSettings = false
 
     var body: some View {
@@ -35,9 +36,9 @@ struct DailyBriefView: View {
             }
         }
         .sheet(isPresented: $showSettings) {
-            SettingsView {
+            SettingsView(onSave: {
                 Task { await viewModel.refreshBrief() }
-            }
+            }, onReset: onReset)
             .presentationCornerRadius(12)
         }
         .task {
@@ -95,10 +96,10 @@ struct DailyBriefView: View {
                 Image(systemName: "gearshape")
                     .font(.title3)
                     .foregroundStyle(AppTheme.textDark)
-                    .padding(8)
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.leading, 20)
+        .padding(.trailing, 16)
         .padding(.top, -8)
     }
 

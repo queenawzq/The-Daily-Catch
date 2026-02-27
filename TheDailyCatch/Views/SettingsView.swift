@@ -7,13 +7,15 @@ struct SettingsView: View {
     @State private var selectedMotivation: ReadingMotivation?
     @State private var expandedSection: Int? = nil
     var onSave: () -> Void
+    var onReset: () -> Void
 
-    init(onSave: @escaping () -> Void) {
+    init(onSave: @escaping () -> Void, onReset: @escaping () -> Void = {}) {
         let prefs = UserPreferencesService.shared
         _selectedLifeStage = State(initialValue: prefs.selectedLifeStage)
         _selectedTopics = State(initialValue: Set(prefs.selectedTopics))
         _selectedMotivation = State(initialValue: prefs.selectedMotivation)
         self.onSave = onSave
+        self.onReset = onReset
     }
 
     var body: some View {
@@ -146,6 +148,25 @@ struct SettingsView: View {
                                     }
                                 }
                             }
+                        }
+
+                        // Restart App
+                        Button {
+                            UserPreferencesService.shared.isOnboardingComplete = false
+                            dismiss()
+                            onReset()
+                        } label: {
+                            Text("RESTART APP")
+                                .font(AppTheme.mono(14, weight: .bold))
+                                .foregroundStyle(AppTheme.textDark)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(Color.white)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
                         }
                     }
                     .padding(.leading, 24)
