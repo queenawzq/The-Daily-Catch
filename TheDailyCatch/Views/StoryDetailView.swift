@@ -70,15 +70,12 @@ struct StoryDetailView: View {
                     if abs(horizontal) > abs(vertical) && abs(horizontal) > 80 {
                         // Horizontal swipe
                         if horizontal < 0 && !showCaughtUp {
-                            // Swipe left → next story or wrap or caught up
+                            // Swipe left → next story or caught up
                             let nextIndex: Int?
                             if currentIndex < stories.count - 1 {
                                 nextIndex = currentIndex + 1
-                            } else if !allViewed {
-                                // Wrap to first unviewed story
-                                nextIndex = (0..<stories.count).first { !viewedIndices.contains($0) }
                             } else {
-                                nextIndex = nil // all viewed, show caught up
+                                nextIndex = nil // last story, show caught up
                             }
 
                             if let next = nextIndex {

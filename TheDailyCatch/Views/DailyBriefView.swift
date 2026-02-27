@@ -147,7 +147,7 @@ struct DailyBriefView: View {
             ForEach(0..<viewModel.stories.count, id: \.self) { index in
                 let isRead = viewModel.isRead(viewModel.stories[index])
                 Rectangle()
-                    .fill(isRead ? Color(hex: "5D84C4") : AppTheme.textDark.opacity(0.15))
+                    .fill(isRead ? Color(hex: "375BCD") : AppTheme.textDark.opacity(0.15))
                     .frame(width: 20, height: 4)
                     .animation(.spring(response: 0.3), value: isRead)
             }
