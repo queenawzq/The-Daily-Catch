@@ -6,7 +6,10 @@ class UserPreferencesService {
     private let defaults = UserDefaults.standard
 
     private enum Keys {
-        static let identityModes = "selectedIdentityModes"
+        static let lifeStage = "selectedLifeStage"
+        static let topics = "selectedTopics"
+        static let motivation = "selectedMotivation"
+        static let catchTime = "selectedCatchTime"
         static let energyMode = "selectedEnergyMode"
         static let onboardingComplete = "onboardingComplete"
     }
@@ -16,18 +19,48 @@ class UserPreferencesService {
         set { defaults.set(newValue, forKey: Keys.onboardingComplete) }
     }
 
-    var selectedIdentityModes: [IdentityMode] {
+    var selectedLifeStage: LifeStage? {
         get {
-            guard let data = defaults.data(forKey: Keys.identityModes),
-                  let modes = try? JSONDecoder().decode([IdentityMode].self, from: data) else {
-                return [.founder]
+            guard let raw = defaults.string(forKey: Keys.lifeStage) else { return nil }
+            return LifeStage(rawValue: raw)
+        }
+        set {
+            defaults.set(newValue?.rawValue, forKey: Keys.lifeStage)
+        }
+    }
+
+    var selectedTopics: [TopicInterest] {
+        get {
+            guard let data = defaults.data(forKey: Keys.topics),
+                  let topics = try? JSONDecoder().decode([TopicInterest].self, from: data) else {
+                return [.techAI, .politics]
             }
-            return modes
+            return topics
         }
         set {
             if let data = try? JSONEncoder().encode(newValue) {
-                defaults.set(data, forKey: Keys.identityModes)
+                defaults.set(data, forKey: Keys.topics)
             }
+        }
+    }
+
+    var selectedMotivation: ReadingMotivation? {
+        get {
+            guard let raw = defaults.string(forKey: Keys.motivation) else { return nil }
+            return ReadingMotivation(rawValue: raw)
+        }
+        set {
+            defaults.set(newValue?.rawValue, forKey: Keys.motivation)
+        }
+    }
+
+    var selectedCatchTime: CatchTime? {
+        get {
+            guard let raw = defaults.string(forKey: Keys.catchTime) else { return nil }
+            return CatchTime(rawValue: raw)
+        }
+        set {
+            defaults.set(newValue?.rawValue, forKey: Keys.catchTime)
         }
     }
 
