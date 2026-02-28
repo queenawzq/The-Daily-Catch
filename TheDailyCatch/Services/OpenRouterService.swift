@@ -145,16 +145,16 @@ class OpenRouterService {
     }
 
     private static let categoryColorMap: [String: String] = [
-        "MONEY": "E8B84B",
-        "TECH": "3366FF",
-        "POLITICS": "FF6B5A",
-        "CLIMATE": "4ECDC4",
-        "HEALTH": "4ECDC4",
-        "CULTURE": "7B9BFF",
-        "WORLD": "FF6B5A",
-        "BUSINESS": "E8B84B",
-        "SPORTS": "3366FF",
-        "HOUSING": "7B9BFF"
+        "MONEY": "D4A843",
+        "TECH": "5B7FBF",
+        "POLITICS": "C7685E",
+        "CLIMATE": "5BA89E",
+        "HEALTH": "6BAF7B",
+        "CULTURE": "8E8FC7",
+        "WORLD": "B07AA8",
+        "BUSINESS": "B8705A",
+        "SPORTS": "4A9EB5",
+        "HOUSING": "C4A87A"
     ]
 
     private static func colorForCategory(_ category: String) -> String {

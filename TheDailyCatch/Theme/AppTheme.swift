@@ -13,11 +13,16 @@ enum AppTheme {
     static let cardBorder = Color(hex: "1A2940")
 
     // MARK: - Accent Colors
-    static let accentBlue = Color(hex: "3366FF")
-    static let periwinkle = Color(hex: "7B9BFF")
-    static let mint = Color(hex: "4ECDC4")
-    static let accentRed = Color(hex: "FF6B5A")
-    static let gold = Color(hex: "E8B84B")
+    static let gold = Color(hex: "D4A843")           // Money – Warm Gold
+    static let accentBlue = Color(hex: "5B7FBF")     // Tech – Slate Blue
+    static let accentRed = Color(hex: "C7685E")      // Politics – Dusty Rose
+    static let mint = Color(hex: "5BA89E")            // Climate – Sage Teal
+    static let periwinkle = Color(hex: "8E8FC7")      // Culture – Muted Violet
+    static let terracotta = Color(hex: "B8705A")      // Business – Terracotta
+    static let softCyan = Color(hex: "4A9EB5")        // Sports – Soft Cyan
+    static let mauve = Color(hex: "B07AA8")           // World – Mauve
+    static let softGreen = Color(hex: "6BAF7B")       // Health – Soft Green
+    static let sand = Color(hex: "C4A87A")            // Housing – Sand
 
     // MARK: - Text Colors
     static let textCream = Color(hex: "F2EDE4")
