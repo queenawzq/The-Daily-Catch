@@ -34,6 +34,8 @@ struct TheDailyCatchApp: App {
 
                 case .onboardingComplete:
                     OnboardingCompleteView {
+                        BriefCacheService.shared.clearCache()
+                        viewModel = DailyBriefViewModel()
                         withAnimation { appState = .mainFeed }
                     }
 

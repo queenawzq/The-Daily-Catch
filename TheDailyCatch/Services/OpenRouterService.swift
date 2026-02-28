@@ -71,10 +71,14 @@ class OpenRouterService {
         }
         let categoriesList = topicCategories.joined(separator: ", ")
 
-        let userPrompt = """
-        Give me today's top 5 news stories about: \(topicsList).
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM d, yyyy"
+        let todayString = dateFormatter.string(from: Date())
 
-        IMPORTANT: Each story MUST be directly related to one of the user's selected topics. The stories should be spread across the selected topics.
+        let userPrompt = """
+        Today is \(todayString). Give me the top 5 news stories from the last 24-48 hours about: \(topicsList).
+
+        IMPORTANT: Only include stories that broke or had major developments within the last 48 hours. Do NOT include older stories. Each story MUST be directly related to one of the user's selected topics. You MUST include at least one story from EACH of the user's selected topics: \(topicsList). Distribute the 5 stories as evenly as possible across all selected topics.
 
         For each story, provide a JSON object with these exact fields:
         - "category": MUST be one of these categories that match the user's interests: \(categoriesList)
