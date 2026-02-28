@@ -55,8 +55,8 @@ struct StoryDetailView: View {
                     .transition(.move(edge: .trailing))
             }
         }
-        .gesture(
-            DragGesture(minimumDistance: 50)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 30)
                 .onChanged { value in
                     // Only track horizontal drags
                     if abs(value.translation.width) > abs(value.translation.height) {
@@ -248,8 +248,8 @@ struct StoryDetailView: View {
                         .foregroundStyle(darkText)
 
                     Text(isDeepMode ? cleanText(story.hook) : truncateToSentences(story.hook, max: 2))
-                        .font(AppTheme.body(14))
-                        .foregroundStyle(darkText.opacity(0.8))
+                        .font(AppTheme.body(15).weight(.medium))
+                        .foregroundStyle(darkText.opacity(0.65))
                         .lineSpacing(5)
                 }
 
@@ -260,8 +260,8 @@ struct StoryDetailView: View {
                         .foregroundStyle(darkText)
 
                     Text(isDeepMode ? cleanText(story.context) : truncateToSentences(story.context, max: 2))
-                        .font(AppTheme.body(14))
-                        .foregroundStyle(darkText.opacity(0.8))
+                        .font(AppTheme.body(15).weight(.medium))
+                        .foregroundStyle(darkText.opacity(0.65))
                         .lineSpacing(5)
                 }
 
@@ -273,7 +273,7 @@ struct StoryDetailView: View {
                             .foregroundStyle(darkText)
 
                         Text(cleanText(story.hook) + "\n\n" + cleanText(story.context))
-                            .font(AppTheme.body(14))
+                            .font(AppTheme.body(15).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.8))
                             .lineSpacing(5)
                     }
@@ -287,8 +287,8 @@ struct StoryDetailView: View {
                             .foregroundStyle(Color(hex: "375BCD"))
 
                         Text(cleanText(story.soWhat))
-                            .font(AppTheme.body(14))
-                            .foregroundStyle(darkText.opacity(0.8))
+                            .font(AppTheme.body(15).weight(.medium))
+                            .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
                     }
                     .padding(16)

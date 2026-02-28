@@ -55,7 +55,7 @@ enum TopicInterest: String, Codable, CaseIterable, Identifiable {
         case .globalAffairs: return "Global Affairs"
         case .businessStartups: return "Business & Startups"
         case .sports: return "Sports"
-        case .housingRealEstate: return "Housing & Real Estate"
+        case .housingRealEstate: return "Real Estate"
         }
     }
 
