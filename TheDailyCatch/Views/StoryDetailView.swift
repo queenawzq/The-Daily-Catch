@@ -231,13 +231,13 @@ struct StoryDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Category
                 Text(story.category.uppercased())
-                    .font(AppTheme.mono(11, weight: .bold))
+                    .font(AppTheme.mono(11.5, weight: .bold))
                     .foregroundStyle(Color(hex: story.categoryColor))
                     .padding(.bottom, -12)
 
                 // Headline
                 Text(story.headline.uppercased())
-                    .font(AppTheme.headline(34.5, weight: .bold))
+                    .font(AppTheme.headline(34, weight: .bold))
                     .foregroundStyle(darkText)
                     .lineSpacing(2)
 
