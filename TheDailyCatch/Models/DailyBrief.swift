@@ -3,7 +3,7 @@ import Foundation
 struct DailyBrief: Codable {
     let stories: [Story]
     let generatedAt: Date
-    let identityModes: [IdentityMode]
+    let topics: [TopicInterest]
     let energyMode: EnergyMode
 
     var isFromToday: Bool {
