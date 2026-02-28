@@ -45,13 +45,22 @@ class OpenRouterService {
             stageHint = "Write for a general adult audience."
         }
 
-        let categoryColors = [
-            "3366FF", "4ECDC4", "FF6B5A", "E8B84B", "7B9BFF"
-        ]
-
         let systemPrompt = """
-        You are a sharp, clear news curator. Write with authority but keep it accessible. \
-        No fluff, no clickbait. Inform the reader efficiently. \
+        You are a news curator who prioritizes understanding over volume. \
+        For every story, start with "why would a busy person care about this?" and work backward to what happened.
+
+        SELECTION FILTERS — apply all three before including a story:
+        1. Scale of Impact: Does this change how people live, work, spend, or plan?
+        2. Dinner Table Test: Would someone who doesn't follow the news find this interesting?
+        3. Context Gap: Is this something people saw a headline about but couldn't explain?
+
+        EDITORIAL RULES:
+        - Never editorialize on who is right or wrong.
+        - No loaded adjectives ("controversial," "shocking," "unprecedented").
+        - Do not frame stories as two-sided conflicts when they are more nuanced.
+        - Let facts and context do the work.
+        - When uncertain, say so: "it's unclear whether," "analysts are divided on."
+
         \(toneHint) \(stageHint)
         """
 
@@ -76,23 +85,31 @@ class OpenRouterService {
         let todayString = dateFormatter.string(from: Date())
 
         let userPrompt = """
-        Today is \(todayString). Give me the top 5 news stories from the last 24-48 hours about: \(topicsList).
+        Today is \(todayString). Give me the 5 most important stories from the last 24-48 hours about: \(topicsList).
 
-        IMPORTANT: Only include stories that broke or had major developments within the last 48 hours. Do NOT include older stories. Each story MUST be directly related to one of the user's selected topics. You MUST include at least one story from EACH of the user's selected topics: \(topicsList). Distribute the 5 stories as evenly as possible across all selected topics.
+        RECENCY: Only include stories that broke or had major developments within the last 48 hours. Do NOT include older stories.
+
+        TOPIC DISTRIBUTION: Each story MUST be directly related to one of the user's selected topics. You MUST include at least one story from EACH of the user's selected topics: \(topicsList). Distribute the 5 stories as evenly as possible across all selected topics.
+
+        SOURCE REQUIREMENTS:
+        - Each story must be informed by at least 2-3 cross-referenced sources.
+        - Prefer wire services (Reuters, AP) as the factual backbone.
+        - Layer in specialist sources for context (e.g. FT for economics, Nature/Ars Technica for science, The Economist for geopolitics).
+        - The "sources" array must list the actual outlets you consulted, not generic names.
+
+        QUALITY GATE: If a story only matters inside political media or finance Twitter, replace it. If only one outlet is reporting it, replace it.
 
         For each story, provide a JSON object with these exact fields:
         - "category": MUST be one of these categories that match the user's interests: \(categoriesList)
-        - "categoryColor": a hex color for the category from this list: \(categoryColors.joined(separator: ", "))
         - "headline": clear, compelling headline (max 12 words)
-        - "hook": what happened, in about \(wordCount) words — the core news
-        - "context": why it matters right now, in about \(wordCount) words — the bigger picture
-        - "soWhat": how this affects the reader personally, in 1-2 sentences
+        - "hook": One sentence. What happened, in plain language. Not a paragraph — one sentence, roughly \(wordCount) words.
+        - "context": Two to three sentences. Why this is happening now, what led here, the bigger picture. Roughly \(wordCount) words.
+        - "soWhat": One to two sentences. How this affects the reader's life, money, or world. This is the most important field — if you can't write a compelling "so what," the story doesn't belong.
         - "source": name of the primary news source
         - "sourceURL": URL to the original article
-        - "sources": array of source names (e.g. ["Reuters", "BBC", "NYT"])
+        - "sources": array of 2+ real outlet names consulted (e.g. ["Reuters", "Financial Times", "The Economist"])
         - "readTime": estimated read time (e.g. "2 min read")
         - "timestamp": when the story broke (e.g. "2h ago", "Today")
-        - "imageURL": a direct URL to a relevant, publicly accessible news photo or image for this story (from Reuters, AP, AFP, or the source's website). Must be a real working image URL, not a placeholder.
 
         Return ONLY a JSON array of 5 objects. No markdown, no code fences, just the raw JSON array.
         """
