@@ -43,7 +43,7 @@ class DailyBriefViewModel {
             stories = cached.stories.map { s in
                 Story(id: s.id, headline: s.headline, category: s.category,
                       categoryColor: Self.colorForCategory(s.category),
-                      hook: s.hook, context: s.context, soWhat: s.soWhat,
+                      hook: s.hook, context: s.context, soWhat: s.soWhat, deepDive: s.deepDive,
                       source: s.source, sourceURL: s.sourceURL,
                       sources: s.sources, readTime: s.readTime,
                       timestamp: s.timestamp, imageURL: s.imageURL)

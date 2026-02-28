@@ -8,6 +8,7 @@ struct Story: Codable, Identifiable {
     let hook: String
     let context: String
     let soWhat: String
+    let deepDive: String
     let source: String
     let sourceURL: String
     let sources: [String]

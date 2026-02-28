@@ -105,6 +105,7 @@ class OpenRouterService {
         - "hook": One sentence. What happened, in plain language. Not a paragraph — one sentence, roughly \(wordCount) words.
         - "context": Two to three sentences. Why this is happening now, what led here, the bigger picture. Roughly \(wordCount) words.
         - "soWhat": One to two sentences. How this affects the reader's life, money, or world. This is the most important field — if you can't write a compelling "so what," the story doesn't belong.
+        - "deepDive": 3-4 sentences. Go deeper — provide historical context, key stakeholders, competing perspectives, or underlying trends that explain the full picture. This should NOT repeat the hook or context; it should add new information the reader wouldn't get from a headline.
         - "source": name of the primary news source
         - "sourceURL": URL to the original article
         - "sources": array of 2+ real outlet names consulted (e.g. ["Reuters", "Financial Times", "The Economist"])
@@ -198,6 +199,7 @@ class OpenRouterService {
                 hook: hook,
                 context: context,
                 soWhat: soWhat,
+                deepDive: dict["deepDive"] as? String ?? (hook + " " + context),
                 source: source,
                 sourceURL: dict["sourceURL"] as? String ?? "",
                 sources: dict["sources"] as? [String] ?? [source],
