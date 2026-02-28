@@ -231,7 +231,7 @@ struct StoryDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Category
                 Text(story.category.uppercased())
-                    .font(AppTheme.mono(11.5, weight: .bold))
+                    .font(AppTheme.mono(12, weight: .bold))
                     .foregroundStyle(Color(hex: story.categoryColor))
                     .padding(.bottom, -12)
 
@@ -244,11 +244,11 @@ struct StoryDetailView: View {
                 // What happened
                 VStack(alignment: .leading, spacing: 8) {
                     Text("What happened")
-                        .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
+                        .font(.custom("SpaceGrotesk-Light", size: 13).weight(.bold))
                         .foregroundStyle(darkText)
 
                     Text(isDeepMode ? cleanText(story.hook) : truncateToSentences(story.hook, max: 2))
-                        .font(AppTheme.body(15.5).weight(.medium))
+                        .font(AppTheme.body(15).weight(.medium))
                         .foregroundStyle(darkText.opacity(0.65))
                         .lineSpacing(5)
                 }
@@ -256,11 +256,11 @@ struct StoryDetailView: View {
                 // Why it matters now
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Why it matters now")
-                        .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
+                        .font(.custom("SpaceGrotesk-Light", size: 13).weight(.bold))
                         .foregroundStyle(darkText)
 
                     Text(isDeepMode ? cleanText(story.context) : truncateToSentences(story.context, max: 2))
-                        .font(AppTheme.body(15.5).weight(.medium))
+                        .font(AppTheme.body(15).weight(.medium))
                         .foregroundStyle(darkText.opacity(0.65))
                         .lineSpacing(5)
                 }
@@ -269,11 +269,11 @@ struct StoryDetailView: View {
                 if isDeepMode {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Deep dive")
-                            .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
+                            .font(.custom("SpaceGrotesk-Light", size: 13).weight(.bold))
                             .foregroundStyle(darkText)
 
                         Text(cleanText(story.deepDive))
-                            .font(AppTheme.body(15.5).weight(.medium))
+                            .font(AppTheme.body(15).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
                     }
@@ -283,11 +283,11 @@ struct StoryDetailView: View {
                 ZStack(alignment: .topTrailing) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("How this affect you")
-                            .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
+                            .font(.custom("SpaceGrotesk-Light", size: 13).weight(.bold))
                             .foregroundStyle(Color(hex: "375BCD"))
 
                         Text(cleanText(story.soWhat))
-                            .font(AppTheme.body(15.5).weight(.medium))
+                            .font(AppTheme.body(15).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
                     }
