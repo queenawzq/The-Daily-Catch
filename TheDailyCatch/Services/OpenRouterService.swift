@@ -105,6 +105,7 @@ class OpenRouterService {
         - "hook": One sentence. What happened, in plain language. Not a paragraph — one sentence, roughly \(wordCount) words.
         - "context": Two to three sentences. Why this is happening now, what led here, the bigger picture. Roughly \(wordCount) words.
         - "soWhat": One to two sentences. How this affects the reader's life, money, or world. This is the most important field — if you can't write a compelling "so what," the story doesn't belong.
+        - "deepDive": 3-4 sentences. Go deeper — provide historical context, key stakeholders, competing perspectives, or underlying trends that explain the full picture. This should NOT repeat the hook or context; it should add new information the reader wouldn't get from a headline.
         - "source": name of the primary news source
         - "sourceURL": URL to the original article
         - "sources": array of 2+ real outlet names consulted (e.g. ["Reuters", "Financial Times", "The Economist"])
@@ -145,16 +146,16 @@ class OpenRouterService {
     }
 
     private static let categoryColorMap: [String: String] = [
-        "MONEY": "E8B84B",
-        "TECH": "3366FF",
-        "POLITICS": "FF6B5A",
-        "CLIMATE": "4ECDC4",
-        "HEALTH": "4ECDC4",
-        "CULTURE": "7B9BFF",
-        "WORLD": "FF6B5A",
-        "BUSINESS": "E8B84B",
-        "SPORTS": "3366FF",
-        "HOUSING": "7B9BFF"
+        "MONEY": "D4A843",
+        "TECH": "5B7FBF",
+        "POLITICS": "C7685E",
+        "CLIMATE": "5BA89E",
+        "HEALTH": "6BAF7B",
+        "CULTURE": "8E8FC7",
+        "WORLD": "B07AA8",
+        "BUSINESS": "B8705A",
+        "SPORTS": "4A9EB5",
+        "HOUSING": "C4A87A"
     ]
 
     private static func colorForCategory(_ category: String) -> String {
@@ -198,6 +199,7 @@ class OpenRouterService {
                 hook: hook,
                 context: context,
                 soWhat: soWhat,
+                deepDive: dict["deepDive"] as? String ?? (hook + " " + context),
                 source: source,
                 sourceURL: dict["sourceURL"] as? String ?? "",
                 sources: dict["sources"] as? [String] ?? [source],
