@@ -272,9 +272,9 @@ struct StoryDetailView: View {
                             .font(.custom("SpaceGrotesk-Light", size: 13).weight(.bold))
                             .foregroundStyle(darkText)
 
-                        Text(cleanText(story.hook) + "\n\n" + cleanText(story.context))
+                        Text(cleanText(story.deepDive))
                             .font(AppTheme.body(15).weight(.medium))
-                            .foregroundStyle(darkText.opacity(0.8))
+                            .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
                     }
                 }
