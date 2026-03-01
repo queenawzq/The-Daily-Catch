@@ -27,6 +27,7 @@ class DailyBriefViewModel {
 
     func markRead(_ story: Story) {
         storiesRead.insert(story.id)
+        saveReadState()
     }
 
     func expandStory(_ story: Story) {
@@ -48,6 +49,7 @@ class DailyBriefViewModel {
                       sources: s.sources, readTime: s.readTime,
                       timestamp: s.timestamp, imageURL: s.imageURL)
             }
+            loadReadState()
             return
         }
         await refreshBrief()
@@ -83,6 +85,7 @@ class DailyBriefViewModel {
             cacheService.saveBrief(brief)
             stories = fetched
             storiesRead = []
+            UserDefaults.standard.removeObject(forKey: "storiesRead")
         } catch {
             self.error = error.localizedDescription
         }
@@ -91,6 +94,17 @@ class DailyBriefViewModel {
 
     func restart() {
         storiesRead = []
+        UserDefaults.standard.removeObject(forKey: "storiesRead")
         expandedStory = nil
+    }
+
+    private func saveReadState() {
+        let ids = storiesRead.map { $0.uuidString }
+        UserDefaults.standard.set(ids, forKey: "storiesRead")
+    }
+
+    private func loadReadState() {
+        guard let ids = UserDefaults.standard.stringArray(forKey: "storiesRead") else { return }
+        storiesRead = Set(ids.compactMap { UUID(uuidString: $0) })
     }
 }
