@@ -133,9 +133,10 @@ struct DailyBriefView: View {
     }
 
     private var currentDateTimeString: String {
+        let date = viewModel.briefDate ?? Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy h:mm a 'ET'"
-        return formatter.string(from: Date())
+        formatter.dateFormat = "MMM d, yyyy 'by' h:mm a"
+        return formatter.string(from: date)
     }
 
     // MARK: - Progress
@@ -229,6 +230,7 @@ struct DailyBriefView: View {
 
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 16) {
+            Spacer()
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundStyle(AppTheme.accentRed)
@@ -248,7 +250,9 @@ struct DailyBriefView: View {
             .padding(.vertical, 12)
             .background(AppTheme.textDark)
             .clipShape(Capsule())
+            Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
     }
 }

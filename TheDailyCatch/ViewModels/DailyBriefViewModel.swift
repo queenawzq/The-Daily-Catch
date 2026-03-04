@@ -8,6 +8,7 @@ class DailyBriefViewModel {
     var expandedStory: Story?
     var isLoading: Bool = false
     var error: String?
+    var briefDate: Date?
 
     private let apiService = OpenRouterService.shared
     private let cacheService = BriefCacheService.shared
@@ -49,6 +50,7 @@ class DailyBriefViewModel {
                       sources: s.sources, readTime: s.readTime,
                       timestamp: s.timestamp, imageURL: s.imageURL)
             }
+            briefDate = cached.generatedAt
             loadReadState()
             return
         }
@@ -84,6 +86,7 @@ class DailyBriefViewModel {
             )
             cacheService.saveBrief(brief)
             stories = fetched
+            briefDate = brief.generatedAt
             storiesRead = []
             UserDefaults.standard.removeObject(forKey: "storiesRead")
         } catch {
