@@ -79,17 +79,28 @@ class OpenRouterService {
             }
         }
         let categoriesList = topicCategories.joined(separator: ", ")
+        let allCategories = "MONEY, TECH, POLITICS, CLIMATE, HEALTH, CULTURE, WORLD, BUSINESS, SPORTS, HOUSING"
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM d, yyyy"
         let todayString = dateFormatter.string(from: Date())
 
         let userPrompt = """
-        Today is \(todayString). Give me the 5 most important stories from the last 24-48 hours about: \(topicsList).
+        Today is \(todayString). Give me the 5 most important stories from the last 24-48 hours.
+
+        STORY #1 — WILDCARD (BIGGEST STORY OF THE DAY):
+        The first story MUST be the single most important news event in the US or the world right now — the story everyone is talking about, regardless of topic. Apply the Dinner Table Test: if someone would feel out of the loop not knowing this, include it. This story can be from ANY category.
+
+        STORIES #2-5 — USER TOPICS (STRICT — READ CAREFULLY):
+        The remaining 4 stories MUST come from COMPLETELY DIFFERENT subject areas than Story #1. They must cover the user's selected topics: \(topicsList).
+        - Each story MUST be about a fundamentally different event, industry, or subject. Zero overlap with Story #1.
+        - FORBIDDEN: Do NOT repackage the same geopolitical/war event under different labels (e.g., labeling "missile strikes disrupt tech bases" as TECH, or "shipping halted due to war" as BUSINESS). Those are war stories, not tech or business stories.
+        - TECH stories must be about technology companies, products, AI, software, hardware, or the tech industry itself — NOT about military technology or cyber warfare.
+        - BUSINESS stories must be about companies, startups, funding, markets, or entrepreneurship — NOT about economic fallout from wars or conflicts.
+        - WORLD stories in slots #2-5 must be about a DIFFERENT region or event than Story #1.
+        - Distribute evenly across all selected topics, with at least one story from each topic.
 
         RECENCY: Only include stories that broke or had major developments within the last 48 hours. Do NOT include older stories.
-
-        TOPIC DISTRIBUTION: Each story MUST be directly related to one of the user's selected topics. You MUST include at least one story from EACH of the user's selected topics: \(topicsList). Distribute the 5 stories as evenly as possible across all selected topics.
 
         SOURCE REQUIREMENTS:
         - Each story must be informed by at least 2-3 cross-referenced sources.
@@ -99,8 +110,13 @@ class OpenRouterService {
 
         QUALITY GATE: If a story only matters inside political media or finance Twitter, replace it. If only one outlet is reporting it, replace it.
 
+        CATEGORY RULES:
+        - Story #1 (wildcard): "category" can be ANY of: \(allCategories)
+        - Stories #2-5: "category" MUST be one of the user's selected topics only: \(categoriesList)
+          Do NOT use categories the user did not select for stories #2-5.
+
         For each story, provide a JSON object with these exact fields:
-        - "category": MUST be one of these categories that match the user's interests: \(categoriesList)
+        - "category": see CATEGORY RULES above
         - "headline": clear, compelling headline (max 12 words)
         - "hook": One sentence. What happened, in plain language. Not a paragraph — one sentence, roughly \(wordCount) words.
         - "context": Two to three sentences. Why this is happening now, what led here, the bigger picture. Roughly \(wordCount) words.

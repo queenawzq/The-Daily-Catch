@@ -21,44 +21,36 @@ struct SplashView: View {
             }
             .ignoresSafeArea(edges: .bottom)
 
-            // Content layered on top
-            VStack(spacing: 0) {
-                Spacer()
-                    .frame(height: 40)
+            // Tape stickers at top
+            VStack(spacing: -10) {
+                Image("DailyCatchUpTape")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 55)
+                    .rotationEffect(.degrees(-3), anchor: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Tape stickers — flush to screen edges
-                VStack(spacing: 16) {
-                    Image("DailyCatchUpTape")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 110)
-                        .rotationEffect(.degrees(-3), anchor: .leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                Image("StayInformedTape")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 55)
+                    .rotationEffect(.degrees(2), anchor: .trailing)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
 
-                    Image("StayInformedTape")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 110)
-                        .rotationEffect(.degrees(2), anchor: .trailing)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                }
-
-                // Logo
+            // Logo + tagline centered vertically
+            VStack(spacing: 20) {
                 Image("BigLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 108)
-                    .padding(.top, 16)
 
-                // Tagline
                 Text("5 stories. 2 minutes. Freshly caught\nfor your everyday.")
                     .font(.custom("SpaceGrotesk-Light", size: 14).weight(.medium))
                     .foregroundStyle(AppTheme.textDark.opacity(0.6))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
-                    .padding(.top, 20)
-
-                Spacer()
             }
         }
         .opacity(appeared ? 1 : 0)

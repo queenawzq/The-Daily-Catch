@@ -48,7 +48,7 @@ struct CompletionView: View {
                     .multilineTextAlignment(.center)
 
                 // Next catch badge
-                Text("Next Catch Tomorrow, 7:00 AM ET")
+                Text("New Catch Tomorrow")
                     .font(AppTheme.mono(11, weight: .medium))
                     .foregroundStyle(AppTheme.textDark.opacity(0.5))
                     .padding(.horizontal, 16)

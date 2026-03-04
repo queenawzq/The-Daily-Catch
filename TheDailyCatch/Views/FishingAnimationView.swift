@@ -95,19 +95,19 @@ struct FishingAnimationView: View {
         // Logo-style pixel fish: 7 rows, white eye, vertical triangle tail fin
         VStack(spacing: 0) {
             // Row 1: dorsal fin + tail top
-            HStack(spacing: 0) { e; e; e; e; e; p(); p(); e; e; e; e; e; e; p(); p() }
+            HStack(spacing: 0) { e; e; e; e; e; p(); p(); e; e; e; e; e; e; p() }
             // Row 2: upper body + tail
-            HStack(spacing: 0) { e; e; e; p(); p(); p(); p(); p(); p(); p(); e; e; p(); p(); p() }
+            HStack(spacing: 0) { e; e; e; p(); p(); p(); p(); p(); p(); p(); e; e; p(); p() }
             // Row 3: body top + tail
-            HStack(spacing: 0) { e; e; p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p() }
+            HStack(spacing: 0) { e; e; p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p() }
             // Row 4: center (eye) + tail
-            HStack(spacing: 0) { e; e; p(); w; p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p() }
+            HStack(spacing: 0) { e; e; p(); w; p(); p(); p(); p(); p(); p(); p(); p(); p(); p() }
             // Row 5: body bottom + tail
-            HStack(spacing: 0) { e; e; p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p() }
+            HStack(spacing: 0) { e; e; p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p(); p() }
             // Row 6: lower body + tail
-            HStack(spacing: 0) { e; e; e; p(); p(); p(); p(); p(); p(); p(); e; e; p(); p(); p() }
+            HStack(spacing: 0) { e; e; e; p(); p(); p(); p(); p(); p(); p(); e; e; p(); p() }
             // Row 7: ventral fin + tail bottom
-            HStack(spacing: 0) { e; e; e; e; e; p(); p(); e; e; e; e; e; e; p(); p() }
+            HStack(spacing: 0) { e; e; e; e; e; p(); p(); e; e; e; e; e; e; p() }
         }
     }
 }

@@ -28,27 +28,32 @@ struct StoryDetailView: View {
     private var allViewed: Bool { viewedIndices.count >= stories.count }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            bgColor.ignoresSafeArea()
+        GeometryReader { geo in
+            let topInset = geo.safeAreaInsets.top
+            let bottomInset = geo.safeAreaInsets.bottom
 
-            Image("NewsPageBackground")
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity)
-                .clipped()
-                .padding(.top, 46)
+            ZStack(alignment: .top) {
+                bgColor.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                topBar
-                storyContent
-                    .offset(x: dragOffset)
-            }
+                Image("NewsPageBackground")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .padding(.top, 18)
 
-            VStack {
-                Spacer()
-                pageIndicator
-                    .padding(.bottom, 40)
-            }
+                VStack(spacing: 0) {
+                    topBar
+                    storyContent
+                        .offset(x: dragOffset)
+                }
+                .padding(.top, topInset)
+
+                VStack {
+                    Spacer()
+                    pageIndicator
+                        .padding(.bottom, bottomInset + 16)
+                }
 
             if showCaughtUp {
                 caughtUpView
@@ -128,6 +133,8 @@ struct StoryDetailView: View {
                     }
                 }
         )
+        .ignoresSafeArea()
+        }
     }
 
     // MARK: - Helpers
@@ -202,8 +209,8 @@ struct StoryDetailView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 58)
         .padding(.bottom, 8)
+        .padding(.top, 8)
     }
 
     // MARK: - Page Indicator
@@ -381,7 +388,7 @@ struct StoryDetailView: View {
                     .multilineTextAlignment(.center)
 
                 // Next catch
-                Text("Next Catch Tomorrow, 7:00 AM ET")
+                Text("New Catch Tomorrow")
                     .font(.custom("SpaceGrotesk-Light", size: 12).weight(.medium))
                     .foregroundStyle(Color(hex: "375BCD"))
 
