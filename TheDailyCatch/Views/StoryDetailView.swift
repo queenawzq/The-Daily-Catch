@@ -11,6 +11,9 @@ struct StoryDetailView: View {
     @State private var dragOffset: CGFloat = 0
     @State private var showCaughtUp = false
     @State private var viewedIndices: Set<Int> = []
+    @State private var showPaywall = false
+    @AppStorage("isPremium") private var isPremium = false
+    @AppStorage("pricingIsYearly") private var pricingIsYearly = true
 
     private let bgColor = Color(hex: "D6D6D6")
     private let darkText = Color(hex: "2A2A2A")
@@ -54,6 +57,31 @@ struct StoryDetailView: View {
                     pageIndicator
                         .padding(.bottom, bottomInset + 16)
                 }
+
+            // Paywall overlay
+            if !isPremium && isDeepMode && showPaywall {
+                VStack {
+                    Spacer()
+                    PaywallOverlayView(
+                        paperBgColor: bgColor,
+                        pricingIsYearly: $pricingIsYearly,
+                        onUnlock: {
+                            withAnimation {
+                                isPremium = true
+                                showPaywall = false
+                            }
+                        },
+                        onDismiss: {
+                            withAnimation {
+                                isDeepMode = false
+                                showPaywall = false
+                            }
+                        }
+                    )
+                }
+                .transition(.opacity)
+                .ignoresSafeArea()
+            }
 
             if showCaughtUp {
                 caughtUpView
@@ -191,11 +219,29 @@ struct StoryDetailView: View {
                     .font(AppTheme.mono(15.4, weight: .bold))
                     .foregroundStyle(darkText.opacity(0.4))
 
-                Text("DEEP")
-                    .font(AppTheme.mono(15.4, weight: .bold))
-                    .foregroundStyle(isDeepMode ? darkText : darkText.opacity(0.4))
-                    .underline(isDeepMode)
-                    .onTapGesture { isDeepMode = true }
+                HStack(spacing: 3) {
+                    Text("DEEP")
+                        .font(AppTheme.mono(15.4, weight: .bold))
+                        .foregroundStyle(isDeepMode ? darkText : darkText.opacity(0.4))
+                        .underline(isDeepMode)
+                    if !isPremium {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(isDeepMode ? darkText : darkText.opacity(0.4))
+                    }
+                }
+                .onTapGesture {
+                    if isPremium {
+                        isDeepMode = true
+                    } else {
+                        isDeepMode = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showPaywall = true
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer()
@@ -210,7 +256,7 @@ struct StoryDetailView: View {
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 8)
-        .padding(.top, 8)
+        .padding(.top, 16)
     }
 
     // MARK: - Page Indicator
@@ -249,10 +295,14 @@ struct StoryDetailView: View {
                         .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                         .foregroundStyle(darkText)
 
-                    Text(isDeepMode ? cleanText(story.hook) : truncateToSentences(story.hook, max: 2))
-                        .font(AppTheme.body(15.5).weight(.medium))
-                        .foregroundStyle(darkText.opacity(0.65))
-                        .lineSpacing(5)
+                    if isDeepMode, let terms = story.linkedTerms, !terms.isEmpty {
+                        AnnotatedTextView(text: cleanText(story.hook), terms: terms)
+                    } else {
+                        Text(isDeepMode ? cleanText(story.hook) : truncateToSentences(story.hook, max: 2))
+                            .font(AppTheme.body(15.5).weight(.medium))
+                            .foregroundStyle(darkText.opacity(0.65))
+                            .lineSpacing(5)
+                    }
                 }
 
                 // Why it matters now
@@ -261,23 +311,32 @@ struct StoryDetailView: View {
                         .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                         .foregroundStyle(darkText)
 
-                    Text(isDeepMode ? cleanText(story.context) : truncateToSentences(story.context, max: 2))
-                        .font(AppTheme.body(15.5).weight(.medium))
-                        .foregroundStyle(darkText.opacity(0.65))
-                        .lineSpacing(5)
-                }
-
-                // Deep dive (only in deep mode)
-                if isDeepMode {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Deep dive")
-                            .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
-                            .foregroundStyle(darkText)
-
-                        Text(cleanText(story.deepDive))
+                    if isDeepMode, let terms = story.linkedTerms, !terms.isEmpty {
+                        AnnotatedTextView(text: cleanText(story.context), terms: terms)
+                    } else {
+                        Text(isDeepMode ? cleanText(story.context) : truncateToSentences(story.context, max: 2))
                             .font(AppTheme.body(15.5).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
+                    }
+                }
+
+                // Deep mode sections
+                if isDeepMode {
+                    if let events = story.timeline, !events.isEmpty {
+                        TimelineView(events: events)
+                    }
+
+                    DeepDiveView(
+                        keyStat: story.keyStat,
+                        keyFacts: story.keyFacts,
+                        deepDive: story.deepDive,
+                        linkedTerms: story.linkedTerms,
+                        cleanText: cleanText
+                    )
+
+                    if let watchText = story.whatToWatch, !watchText.isEmpty {
+                        WhatToWatchView(text: watchText)
                     }
                 }
 
@@ -308,6 +367,11 @@ struct StoryDetailView: View {
                         .scaledToFit()
                         .frame(width: 72, height: 96)
                         .offset(x: 6, y: -34)
+                }
+
+                // Full coverage (moved to bottom)
+                if isDeepMode, let sources = story.fullCoverage, !sources.isEmpty {
+                    FullCoverageView(sources: sources)
                 }
 
                 // Sources

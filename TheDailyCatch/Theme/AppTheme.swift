@@ -24,6 +24,11 @@ enum AppTheme {
     static let softGreen = Color(hex: "6BAF7B")       // Health – Soft Green
     static let sand = Color(hex: "C4A87A")            // Housing – Sand
 
+    // MARK: - Deep Mode Colors
+    static let accentBlueSoft = Color(hex: "EBF1FB")
+    static let orangeAccent = Color(hex: "D4772C")
+    static let orangeSoft = Color(hex: "FDF1E5")
+
     // MARK: - Text Colors
     static let textCream = Color(hex: "F2EDE4")
     static let textMidGrey = Color(hex: "8B8B97")

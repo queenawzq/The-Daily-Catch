@@ -1,13 +1,20 @@
 import SwiftUI
+import StoreKit
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
+    @AppStorage("isPremium") private var isPremium = false
+    @State private var showPaywall = false
+    @AppStorage("pricingIsYearly") private var pricingIsYearly = true
     @State private var selectedLifeStage: LifeStage?
     @State private var selectedTopics: Set<TopicInterest>
     @State private var selectedMotivation: ReadingMotivation?
     @State private var expandedSection: Int? = nil
     var onSave: () -> Void
     var onReset: () -> Void
+
+    private let ctaBlue = Color(hex: "375BCD")
 
     init(onSave: @escaping () -> Void, onReset: @escaping () -> Void = {}) {
         let prefs = UserPreferencesService.shared
@@ -42,7 +49,7 @@ struct SettingsView: View {
 
                         Text("SAVE")
                             .font(AppTheme.mono(14, weight: .bold))
-                            .foregroundStyle(Color(hex: "5D84C4"))
+                            .foregroundStyle(ctaBlue)
                             .onTapGesture {
                                 let prefs = UserPreferencesService.shared
                                 let changed = prefs.selectedLifeStage != selectedLifeStage
@@ -62,95 +69,154 @@ struct SettingsView: View {
                     .padding(.bottom, 12)
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Section 1: Life Stage
-                        collapsibleSection(
-                            index: 1,
-                            title: "WHERE ARE YOU RIGHT NOW?",
-                            summary: selectedLifeStage?.displayName ?? "Not set"
-                        ) {
-                            VStack(spacing: 10) {
-                                ForEach(LifeStage.allCases) { stage in
-                                    settingsRow(
-                                        emoji: stage.emoji,
-                                        label: stage.displayName.uppercased(),
-                                        isSelected: selectedLifeStage == stage
-                                    ) {
-                                        selectedLifeStage = stage
-                                    }
-                                }
-                            }
-                        }
+                    VStack(alignment: .leading, spacing: 0) {
 
-                        // Section 2: Topics
-                        collapsibleSection(
-                            index: 2,
-                            title: "WHAT DO YOU ACTUALLY CARE ABOUT?",
-                            summary: "\(selectedTopics.count) selected"
-                        ) {
-                            ScrollView {
+                        // ── SUBSCRIPTION CARD ──
+                        planCard
+                            .padding(.bottom, 32)
+
+                        // ── MY PREFERENCES ──
+                        Text("MY PREFERENCES")
+                            .font(AppTheme.mono(10))
+                            .foregroundStyle(AppTheme.textMidGrey)
+                            .padding(.leading, 4)
+                            .padding(.bottom, 12)
+
+                        VStack(spacing: 10) {
+                            collapsibleSection(
+                                index: 1,
+                                title: "WHERE ARE YOU RIGHT NOW?",
+                                summary: selectedLifeStage?.displayName ?? "Not set"
+                            ) {
                                 VStack(spacing: 10) {
-                                    ForEach(TopicInterest.allCases) { topic in
-                                        let isSelected = selectedTopics.contains(topic)
-                                        Button {
-                                            if isSelected {
-                                                if selectedTopics.count > 1 {
-                                                    selectedTopics.remove(topic)
-                                                }
-                                            } else {
-                                                selectedTopics.insert(topic)
-                                            }
-                                        } label: {
-                                            HStack(spacing: 14) {
-                                                Text(topic.emoji)
-                                                    .font(.title2)
-                                                Text(topic.displayName.uppercased())
-                                                    .font(AppTheme.mono(13, weight: .bold))
-                                                    .foregroundStyle(AppTheme.textDark)
-                                                Spacer()
-                                                Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                                                    .foregroundStyle(isSelected ? AppTheme.textDark : AppTheme.textMidGrey)
-                                                    .font(.title3)
-                                            }
-                                            .padding(.horizontal, 20)
-                                            .padding(.vertical, 14)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: 6)
-                                                    .fill(isSelected ? Color(hex: "CEDCE9") : Color(hex: "F2F2F2"))
-                                            )
-                                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                                            .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
+                                    ForEach(LifeStage.allCases) { stage in
+                                        settingsRow(
+                                            emoji: stage.emoji,
+                                            label: stage.displayName.uppercased(),
+                                            isSelected: selectedLifeStage == stage
+                                        ) {
+                                            selectedLifeStage = stage
                                         }
                                     }
                                 }
-                                .padding(.bottom, 6)
                             }
-                            .padding(.horizontal, 6)
-                            .scrollIndicators(.visible)
-                            .frame(maxHeight: 420)
-                            .padding(.horizontal, -6)
-                        }
 
-                        // Section 3: Motivation
-                        collapsibleSection(
-                            index: 3,
-                            title: "WHY DO YOU WANT TO STAY INFORMED?",
-                            summary: selectedMotivation?.displayName ?? "Not set"
-                        ) {
-                            VStack(spacing: 10) {
-                                ForEach(ReadingMotivation.allCases) { motivation in
-                                    settingsRow(
-                                        emoji: motivation.emoji,
-                                        label: motivation.displayName.uppercased(),
-                                        isSelected: selectedMotivation == motivation
-                                    ) {
-                                        selectedMotivation = motivation
+                            collapsibleSection(
+                                index: 2,
+                                title: "WHAT DO YOU ACTUALLY CARE ABOUT?",
+                                summary: "\(selectedTopics.count) selected"
+                            ) {
+                                ScrollView {
+                                    VStack(spacing: 10) {
+                                        ForEach(TopicInterest.allCases) { topic in
+                                            let isSelected = selectedTopics.contains(topic)
+                                            Button {
+                                                if isSelected {
+                                                    if selectedTopics.count > 1 {
+                                                        selectedTopics.remove(topic)
+                                                    }
+                                                } else {
+                                                    selectedTopics.insert(topic)
+                                                }
+                                            } label: {
+                                                HStack(spacing: 14) {
+                                                    Text(topic.emoji)
+                                                        .font(.title2)
+                                                    Text(topic.displayName.uppercased())
+                                                        .font(AppTheme.mono(13, weight: .bold))
+                                                        .foregroundStyle(AppTheme.textDark)
+                                                    Spacer()
+                                                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                                                        .foregroundStyle(isSelected ? AppTheme.textDark : AppTheme.textMidGrey)
+                                                        .font(.title3)
+                                                }
+                                                .padding(.horizontal, 20)
+                                                .padding(.vertical, 14)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 6)
+                                                        .fill(isSelected ? Color(hex: "CEDCE9") : Color(hex: "F2F2F2"))
+                                                )
+                                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                                .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
+                                            }
+                                        }
+                                    }
+                                    .padding(.bottom, 6)
+                                }
+                                .padding(.horizontal, 6)
+                                .scrollIndicators(.visible)
+                                .frame(maxHeight: 420)
+                                .padding(.horizontal, -6)
+                            }
+
+                            collapsibleSection(
+                                index: 3,
+                                title: "WHY DO YOU WANT TO STAY INFORMED?",
+                                summary: selectedMotivation?.displayName ?? "Not set"
+                            ) {
+                                VStack(spacing: 10) {
+                                    ForEach(ReadingMotivation.allCases) { motivation in
+                                        settingsRow(
+                                            emoji: motivation.emoji,
+                                            label: motivation.displayName.uppercased(),
+                                            isSelected: selectedMotivation == motivation
+                                        ) {
+                                            selectedMotivation = motivation
+                                        }
                                     }
                                 }
                             }
                         }
+                        .padding(.bottom, 32)
 
-                        // Restart App
+                        // ── FEEDBACK & SUPPORT ──
+                        Text("FEEDBACK & SUPPORT")
+                            .font(AppTheme.mono(10))
+                            .foregroundStyle(AppTheme.textMidGrey)
+                            .padding(.leading, 4)
+                            .padding(.bottom, 12)
+
+                        VStack(spacing: 8) {
+                            actionRow(
+                                icon: "star",
+                                iconColor: Color(hex: "D4772C"),
+                                iconBg: AppTheme.orangeSoft,
+                                label: "Rate The Daily Catch",
+                                sublabel: "Enjoying it? A review helps us a lot"
+                            ) {
+                                requestReview()
+                            }
+
+                            actionRow(
+                                icon: "bubble.left",
+                                iconColor: AppTheme.textMidGrey,
+                                iconBg: Color(hex: "F2EFEA"),
+                                label: "Share feedback",
+                                sublabel: "Tell us what's working and what's not"
+                            ) {
+                                if let url = URL(string: "https://docs.google.com/forms/d/e/1FAIpQLSdxbZOyQXOcn784TUnm6y9gh8x2JxnJu9mXC_3HXTRVGk5Ajg/viewform?usp=dialog") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+
+                            actionRow(
+                                icon: "heart",
+                                iconColor: AppTheme.textMidGrey,
+                                iconBg: Color(hex: "F2EFEA"),
+                                label: "Share with a friend",
+                                sublabel: "Know someone who'd love this?"
+                            ) {
+                                let url = URL(string: "https://apps.apple.com/us/app/the-daily-catch-news-reader/id6759816685")!
+                                let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                   let root = scene.windows.first?.rootViewController {
+                                    root.present(av, animated: true)
+                                }
+                            }
+                        }
+                        .padding(.bottom, 32)
+
+                        // ── RESTART APP ──
                         Button {
                             UserPreferencesService.shared.isOnboardingComplete = false
                             dismiss()
@@ -168,16 +234,192 @@ struct SettingsView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                                 .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
                         }
+
+                        // ── VERSION ──
+                        Text("The Daily Catch v1.7 · Stay informed, not overwhelmed.")
+                            .font(AppTheme.mono(9))
+                            .lineLimit(1)
+                            .foregroundStyle(AppTheme.textDark.opacity(0.3))
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 20)
+                            .padding(.bottom, 40)
                     }
                     .padding(.leading, 24)
                     .padding(.trailing, 30)
                     .padding(.top, 16)
-                    .padding(.bottom, 32)
                 }
                 } // VStack
             }
             .navigationBarHidden(true)
         }
+    }
+
+    // MARK: - Plan Card
+
+    private var renewalDateString: String {
+        let calendar = Calendar.current
+        let renewalDate = calendar.date(byAdding: pricingIsYearly ? .year : .month, value: 1, to: Date()) ?? Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter.string(from: renewalDate)
+    }
+
+    private var planCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header row
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("YOUR PLAN")
+                        .font(AppTheme.headline(14, weight: .bold))
+                        .foregroundStyle(AppTheme.textDark)
+
+                    Text(isPremium ? "Deep Catch" : "Daily Catch Free")
+                        .font(AppTheme.body(14).weight(.medium))
+                        .foregroundStyle(isPremium ? ctaBlue : AppTheme.textMidGrey)
+                }
+
+                Spacer()
+
+                Text(isPremium ? "ACTIVE" : "FREE")
+                    .font(AppTheme.mono(10))
+                    .foregroundStyle(isPremium ? ctaBlue : AppTheme.textMidGrey)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(isPremium ? ctaBlue.opacity(0.12) : Color(hex: "F2EFEA"))
+                    )
+            }
+
+            if isPremium {
+                Text("Renews \(renewalDateString) · \(pricingIsYearly ? "$29.99/year" : "$3.99/month")")
+                    .font(AppTheme.body(11).weight(.medium))
+                    .foregroundStyle(AppTheme.textMidGrey)
+                    .padding(.top, 8)
+            }
+
+            // Divider
+            Rectangle()
+                .fill(Color(hex: "E8E4DD"))
+                .frame(height: 1)
+                .padding(.vertical, 16)
+
+            if isPremium {
+                // Manage subscription
+                Button {
+                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack {
+                        Text("Manage subscription")
+                            .font(AppTheme.body(14).weight(.semibold))
+                            .foregroundStyle(AppTheme.textDark)
+                        Spacer()
+                        Image("ExternalLinkIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                            .foregroundStyle(AppTheme.textDark.opacity(0.3))
+                    }
+                }
+                .buttonStyle(.plain)
+
+                Text("Subscriptions are managed through your Apple ID")
+                    .font(AppTheme.body(11).weight(.medium))
+                    .foregroundStyle(AppTheme.textDark.opacity(0.3))
+                    .padding(.top, 8)
+            } else {
+                // Free user: unlock prompt
+                Text("Unlock Deep mode — backstory, full coverage, timelines, and more on every story.")
+                    .font(AppTheme.body(13).weight(.medium))
+                    .foregroundStyle(AppTheme.textDark.opacity(0.6))
+                    .lineSpacing(3)
+                    .padding(.bottom, 12)
+
+                Button {
+                    showPaywall = true
+                } label: {
+                    Text("Try Deep Catch free for 7 days")
+                        .font(AppTheme.body(14).weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(ctaBlue)
+                        )
+                }
+                .buttonStyle(.plain)
+
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white)
+        )
+        .fullScreenCover(isPresented: $showPaywall) {
+            ZStack {
+                Color(hex: "E8E7E5").ignoresSafeArea()
+                VStack {
+                    Spacer()
+                    PaywallOverlayView(
+                        paperBgColor: Color(hex: "E8E7E5"),
+                        pricingIsYearly: $pricingIsYearly,
+                        onUnlock: {
+                            isPremium = true
+                            showPaywall = false
+                        },
+                        onDismiss: {
+                            showPaywall = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Action Row
+
+    private func actionRow(icon: String, iconColor: Color, iconBg: Color, label: String, sublabel: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(iconBg)
+                        .frame(width: 36, height: 36)
+                    Image(systemName: icon)
+                        .font(.system(size: 15))
+                        .foregroundStyle(iconColor)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(label)
+                        .font(AppTheme.body(14).weight(.semibold))
+                        .foregroundStyle(AppTheme.textDark)
+                    Text(sublabel)
+                        .font(AppTheme.body(11).weight(.medium))
+                        .foregroundStyle(AppTheme.textMidGrey)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Image("ExternalLinkIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+                    .foregroundStyle(AppTheme.textDark.opacity(0.3))
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Collapsible Section
@@ -200,7 +442,7 @@ struct SettingsView: View {
                             .multilineTextAlignment(.leading)
                         if expandedSection != index {
                             Text(summary)
-                                .font(.custom("SpaceGrotesk-Light", size: 13).weight(.medium))
+                                .font(AppTheme.body(13).weight(.medium))
                                 .foregroundStyle(AppTheme.textDark.opacity(0.5))
                         }
                     }
@@ -212,11 +454,9 @@ struct SettingsView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
                 .background(
-                    RoundedRectangle(cornerRadius: 6)
+                    RoundedRectangle(cornerRadius: 14)
                         .fill(Color.white)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
             }
 
             if expandedSection == index {

@@ -46,9 +46,12 @@ class DailyBriefViewModel {
                 Story(id: s.id, headline: s.headline, category: s.category,
                       categoryColor: Self.colorForCategory(s.category),
                       hook: s.hook, context: s.context, soWhat: s.soWhat, deepDive: s.deepDive,
+                      keyStat: s.keyStat, keyFacts: s.keyFacts,
                       source: s.source, sourceURL: s.sourceURL,
                       sources: s.sources, readTime: s.readTime,
-                      timestamp: s.timestamp, imageURL: s.imageURL)
+                      timestamp: s.timestamp, imageURL: s.imageURL,
+                      timeline: s.timeline, fullCoverage: s.fullCoverage,
+                      whatToWatch: s.whatToWatch, linkedTerms: s.linkedTerms)
             }
             briefDate = cached.generatedAt
             loadReadState()
