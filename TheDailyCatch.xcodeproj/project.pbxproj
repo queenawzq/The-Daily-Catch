@@ -27,6 +27,7 @@
 		AA400015 /* OnboardingCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400016 /* OnboardingCompleteView.swift */; };
 		AA400017 /* StoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400018 /* StoryDetailView.swift */; };
 		AA400019 /* FishingAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400020 /* FishingAnimationView.swift */; };
+		AA400021 /* DeepModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400022 /* DeepModeComponents.swift */; };
 		AA500001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500002 /* AppTheme.swift */; };
 		AA600001 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA600002 /* Secrets.plist */; };
 		AA700001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA700002 /* Assets.xcassets */; };
@@ -58,6 +59,7 @@
 		AA400016 /* OnboardingCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCompleteView.swift; sourceTree = "<group>"; };
 		AA400018 /* StoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDetailView.swift; sourceTree = "<group>"; };
 		AA400020 /* FishingAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishingAnimationView.swift; sourceTree = "<group>"; };
+		AA400022 /* DeepModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepModeComponents.swift; sourceTree = "<group>"; };
 		AA500002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		AA600002 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 		AA700002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				AA400016 /* OnboardingCompleteView.swift */,
 				AA400018 /* StoryDetailView.swift */,
 				AA400020 /* FishingAnimationView.swift */,
+				AA400022 /* DeepModeComponents.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -255,6 +258,7 @@
 				AA400015 /* OnboardingCompleteView.swift in Sources */,
 				AA400017 /* StoryDetailView.swift in Sources */,
 				AA400019 /* FishingAnimationView.swift in Sources */,
+				AA400021 /* DeepModeComponents.swift in Sources */,
 				AA500001 /* AppTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

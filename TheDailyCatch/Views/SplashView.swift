@@ -26,14 +26,14 @@ struct SplashView: View {
                 Image("DailyCatchUpTape")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 55)
+                    .frame(height: 110)
                     .rotationEffect(.degrees(-3), anchor: .leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image("StayInformedTape")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 55)
+                    .frame(height: 110)
                     .rotationEffect(.degrees(2), anchor: .trailing)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }

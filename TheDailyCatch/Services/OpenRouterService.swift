@@ -110,10 +110,11 @@ class OpenRouterService {
 
         QUALITY GATE: If a story only matters inside political media or finance Twitter, replace it. If only one outlet is reporting it, replace it.
 
-        CATEGORY RULES:
-        - Story #1 (wildcard): "category" can be ANY of: \(allCategories)
+        CATEGORY RULES (STRICT — NO EXCEPTIONS):
+        The ONLY allowed category values are: \(allCategories)
+        - Story #1 (wildcard): "category" can be ANY of the above list.
         - Stories #2-5: "category" MUST be one of the user's selected topics only: \(categoriesList)
-          Do NOT use categories the user did not select for stories #2-5.
+        Do NOT invent new categories. Do NOT use variations like "TECH INDUSTRY", "GEOPOLITICS", "AI", "ARTIFICIAL INTELLIGENCE", "ECONOMY", etc. Map every story to the closest match from the allowed list above.
 
         For each story, provide a JSON object with these exact fields:
         - "category": see CATEGORY RULES above
@@ -121,12 +122,18 @@ class OpenRouterService {
         - "hook": One sentence. What happened, in plain language. Not a paragraph — one sentence, roughly \(wordCount) words.
         - "context": Two to three sentences. Why this is happening now, what led here, the bigger picture. Roughly \(wordCount) words.
         - "soWhat": One to two sentences. How this affects the reader's life, money, or world. This is the most important field — if you can't write a compelling "so what," the story doesn't belong.
-        - "deepDive": 3-4 sentences. Go deeper — provide historical context, key stakeholders, competing perspectives, or underlying trends that explain the full picture. This should NOT repeat the hook or context; it should add new information the reader wouldn't get from a headline.
+        - "keyStat": {"number": "90%", "context": "of Iran's military capabilities degraded, according to President Trump"} — pull out the single most striking number or statistic from this story. If no clear stat exists, omit this field.
+        - "keyFacts": array of 5-7 strings, each a single concise fact or development from this story. These replace the deep dive paragraph — each fact should add new information beyond the hook/context. Do NOT use bullet markers or arrows, just the plain text of each fact.
+        - "deepDive": (fallback) 3-4 sentences combining all key facts into prose. Go deeper — provide historical context, key stakeholders, competing perspectives, or underlying trends that explain the full picture.
         - "source": name of the primary news source
         - "sourceURL": URL to the original article
-        - "sources": array of 2+ real outlet names consulted (e.g. ["Reuters", "Financial Times", "The Economist"])
+        - "sources": array of exactly 3 real outlet names consulted (e.g. ["Reuters", "Financial Times", "The Economist"]). These MUST be the same outlets used in the "fullCoverage" array below.
         - "readTime": estimated read time (e.g. "2 min read")
         - "timestamp": when the story broke (e.g. "2h ago", "Today")
+        - "timeline": array of 3-5 objects with {"date": "Mar 2024", "description": "What happened"} — chronological events leading to this story
+        - "fullCoverage": array of EXACTLY 3 objects (MANDATORY — you MUST return exactly 3, never fewer) with {"name": "Reuters", "angle": "Market reaction — shares rose 4%...", "stance": "Neutral", "headline": "Article headline from this source", "summary": "4-6 paragraph summary of this outlet's reporting. Cover the main event, key quotes, data points, and context. Write in neutral journalistic tone. Separate paragraphs with double newlines.", "date": "March 4, 2026", "sourceURL": "https://..."} — different outlets' perspectives. Stance must be one of: "Neutral", "Analytical", "Critical", "Positive". sourceURL must be a real, valid URL to the actual article. YOU MUST RETURN ALL 3 COVERAGE OBJECTS — do not skip any to save space. The "name" in each fullCoverage object MUST match one of the outlets in the "sources" array.
+        - "whatToWatch": 1-2 sentences of forward-looking analysis — what could happen next
+        - "linkedTerms": array of 2-3 objects with {"term": "jargon word", "explanation": "plain English explanation"} — technical or policy terms from the story
 
         Return ONLY a JSON array of 5 objects. No markdown, no code fences, just the raw JSON array.
         """
@@ -207,6 +214,30 @@ class OpenRouterService {
                   let source = dict["source"] as? String else {
                 return nil
             }
+            let timelineArray: [TimelineEvent]? = (dict["timeline"] as? [[String: Any]])?.compactMap { t in
+                guard let date = t["date"] as? String, let desc = t["description"] as? String else { return nil }
+                return TimelineEvent(date: date, description: desc)
+            }
+            let coverageArray: [SourceCoverage]? = (dict["fullCoverage"] as? [[String: Any]])?.compactMap { c in
+                guard let name = c["name"] as? String, let angle = c["angle"] as? String, let stance = c["stance"] as? String else { return nil }
+                return SourceCoverage(name: name, angle: angle, stance: stance,
+                                      headline: c["headline"] as? String,
+                                      summary: c["summary"] as? String,
+                                      date: c["date"] as? String,
+                                      sourceURL: c["sourceURL"] as? String)
+            }
+            let termsArray: [LinkedTerm]? = (dict["linkedTerms"] as? [[String: Any]])?.compactMap { lt in
+                guard let term = lt["term"] as? String, let explanation = lt["explanation"] as? String else { return nil }
+                return LinkedTerm(term: term, explanation: explanation)
+            }
+            let keyStat: KeyStat? = {
+                guard let ks = dict["keyStat"] as? [String: Any],
+                      let number = ks["number"] as? String,
+                      let ctx = ks["context"] as? String else { return nil }
+                return KeyStat(number: number, context: ctx)
+            }()
+            let keyFacts = dict["keyFacts"] as? [String]
+
             return Story(
                 id: UUID(),
                 headline: headline,
@@ -216,12 +247,18 @@ class OpenRouterService {
                 context: context,
                 soWhat: soWhat,
                 deepDive: dict["deepDive"] as? String ?? (hook + " " + context),
+                keyStat: keyStat,
+                keyFacts: keyFacts,
                 source: source,
                 sourceURL: dict["sourceURL"] as? String ?? "",
                 sources: dict["sources"] as? [String] ?? [source],
                 readTime: dict["readTime"] as? String ?? "2 min read",
                 timestamp: dict["timestamp"] as? String ?? "Today",
-                imageURL: Self.imageURL(from: dict["imageURL"] as? String)
+                imageURL: Self.imageURL(from: dict["imageURL"] as? String),
+                timeline: timelineArray,
+                fullCoverage: coverageArray,
+                whatToWatch: dict["whatToWatch"] as? String,
+                linkedTerms: termsArray
             )
         }
     }

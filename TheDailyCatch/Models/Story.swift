@@ -1,5 +1,35 @@
 import SwiftUI
 
+struct TimelineEvent: Codable {
+    let date: String
+    let description: String
+}
+
+struct SourceCoverage: Codable, Identifiable {
+    var id: String { name + angle }
+    let name: String
+    let angle: String
+    let stance: String
+    let headline: String?
+    let summary: String?
+    let date: String?
+    let sourceURL: String?
+
+    enum CodingKeys: String, CodingKey {
+        case name, angle, stance, headline, summary, date, sourceURL
+    }
+}
+
+struct LinkedTerm: Codable {
+    let term: String
+    let explanation: String
+}
+
+struct KeyStat: Codable {
+    let number: String
+    let context: String
+}
+
 struct Story: Codable, Identifiable {
     let id: UUID
     let headline: String
@@ -9,12 +39,18 @@ struct Story: Codable, Identifiable {
     let context: String
     let soWhat: String
     let deepDive: String
+    let keyStat: KeyStat?
+    let keyFacts: [String]?
     let source: String
     let sourceURL: String
     let sources: [String]
     let readTime: String
     let timestamp: String
     let imageURL: String?
+    let timeline: [TimelineEvent]?
+    let fullCoverage: [SourceCoverage]?
+    let whatToWatch: String?
+    let linkedTerms: [LinkedTerm]?
 }
 
 extension Color {
