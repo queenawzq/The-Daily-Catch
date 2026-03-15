@@ -29,6 +29,7 @@
 		AA400019 /* FishingAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400020 /* FishingAnimationView.swift */; };
 		AA400021 /* DeepModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400022 /* DeepModeComponents.swift */; };
 		AA500001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500002 /* AppTheme.swift */; };
+		AA900001 /* TextHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900002 /* TextHelpers.swift */; };
 		AA600001 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA600002 /* Secrets.plist */; };
 		AA700001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA700002 /* Assets.xcassets */; };
 		AA800001 /* Junicode-BoldCondensed.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA800002 /* Junicode-BoldCondensed.ttf */; };
@@ -61,6 +62,7 @@
 		AA400020 /* FishingAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishingAnimationView.swift; sourceTree = "<group>"; };
 		AA400022 /* DeepModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepModeComponents.swift; sourceTree = "<group>"; };
 		AA500002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		AA900002 /* TextHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHelpers.swift; sourceTree = "<group>"; };
 		AA600002 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 		AA700002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA800002 /* Junicode-BoldCondensed.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Junicode-BoldCondensed.ttf"; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 				AA300000 /* ViewModels */,
 				AA400000 /* Views */,
 				AA500000 /* Theme */,
+				AA900000 /* Helpers */,
 			);
 			path = TheDailyCatch;
 			sourceTree = "<group>";
@@ -168,6 +171,14 @@
 				AA500002 /* AppTheme.swift */,
 			);
 			path = Theme;
+			sourceTree = "<group>";
+		};
+		AA900000 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				AA900002 /* TextHelpers.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -260,6 +271,7 @@
 				AA400019 /* FishingAnimationView.swift in Sources */,
 				AA400021 /* DeepModeComponents.swift in Sources */,
 				AA500001 /* AppTheme.swift in Sources */,
+				AA900001 /* TextHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

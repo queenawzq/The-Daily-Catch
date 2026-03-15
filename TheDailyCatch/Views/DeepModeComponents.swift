@@ -7,7 +7,6 @@ struct DeepDiveView: View {
     let keyFacts: [String]?
     let deepDive: String
     let linkedTerms: [LinkedTerm]?
-    let cleanText: (String) -> String
 
     private let darkText = Color(hex: "2A2A2A")
     private let statBg = Color(hex: "FFF0EB")
@@ -15,7 +14,7 @@ struct DeepDiveView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Deep dive")
+            Text("Key facts")
                 .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                 .foregroundStyle(darkText)
 
@@ -25,8 +24,8 @@ struct DeepDiveView: View {
                     Text(cleanText(stat.number))
                         .font(.custom("Lora", size: 42).weight(.bold))
                         .foregroundStyle(statNumber)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
+                        .minimumScaleFactor(0.5)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Text(cleanText(stat.context))
                         .font(AppTheme.body(14).weight(.medium))
@@ -135,7 +134,7 @@ struct TimelineView: View {
                                 Text(event.date)
                                     .font(AppTheme.mono(11))
                                     .foregroundStyle(timelineBlue)
-                                Text(event.description)
+                                Text(cleanText(event.description))
                                     .font(AppTheme.body(15.5).weight(.medium))
                                     .foregroundStyle(darkText.opacity(0.65))
                                     .lineSpacing(5)
@@ -174,6 +173,7 @@ extension Int: @retroactive Identifiable {
 
 struct FullCoverageView: View {
     let sources: [SourceCoverage]
+    @Binding var isScrolling: Bool
     @State private var selectedIndex: Int? = nil
 
     private let darkText = Color(hex: "2A2A2A")
@@ -206,6 +206,11 @@ struct FullCoverageView: View {
                     .scrollTargetLayout()
                 }
                 .scrollTargetBehavior(.viewAligned)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 10)
+                        .onChanged { _ in isScrolling = true }
+                        .onEnded { _ in isScrolling = false }
+                )
             }
             .fullScreenCover(item: $selectedIndex) { index in
                 SourceDetailView(sources: sources, initialIndex: index)
@@ -445,7 +450,7 @@ struct WhatToWatchView: View {
                     .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                     .foregroundStyle(AppTheme.orangeAccent)
 
-                Text(text)
+                Text(cleanText(text))
                     .font(AppTheme.body(15.5).weight(.medium))
                     .foregroundStyle(darkText.opacity(0.65))
                     .lineSpacing(5)
@@ -662,5 +667,90 @@ struct PaywallOverlayView: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Skeleton Placeholder Views
+
+struct SkeletonBlock: View {
+    var height: CGFloat = 16
+    var width: CGFloat? = nil
+    @State private var shimmerOffset: CGFloat = -1
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(Color(hex: "E0E0E0"))
+            .frame(width: width, height: height)
+            .frame(maxWidth: width == nil ? .infinity : nil, alignment: .leading)
+            .overlay(
+                GeometryReader { geo in
+                    LinearGradient(
+                        colors: [.clear, Color.white.opacity(0.4), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: geo.size.width * 0.4)
+                    .offset(x: shimmerOffset * geo.size.width)
+                }
+                .clipped()
+            )
+            .onAppear {
+                withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+                    shimmerOffset = 1.4
+                }
+            }
+    }
+}
+
+struct TimelineSkeletonView: View {
+    private let borderColor = Color(hex: "E0E0E0")
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SkeletonBlock(height: 14, width: 120)
+
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(0..<3, id: \.self) { _ in
+                    HStack(alignment: .top, spacing: 12) {
+                        Circle()
+                            .fill(borderColor)
+                            .frame(width: 8, height: 8)
+                            .padding(.top, 4)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            SkeletonBlock(height: 10, width: 80)
+                            SkeletonBlock(height: 14)
+                            SkeletonBlock(height: 14, width: 200)
+                        }
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(borderColor, lineWidth: 1)
+                    )
+            )
+        }
+    }
+}
+
+struct WhatToWatchSkeletonView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SkeletonBlock(height: 14, width: 110)
+            SkeletonBlock(height: 14)
+            SkeletonBlock(height: 14)
+            SkeletonBlock(height: 14, width: 180)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(AppTheme.orangeSoft.opacity(0.5))
+        )
     }
 }

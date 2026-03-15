@@ -27,7 +27,7 @@ struct DailyBriefView: View {
             // Story detail overlay
             if let story = viewModel.expandedStory {
                 StoryDetailView(
-                    stories: viewModel.stories,
+                    viewModel: viewModel,
                     initialIndex: (viewModel.stories.firstIndex(where: { $0.id == story.id }) ?? 0),
                     onClose: { viewModel.collapseStory() },
                     onStoryViewed: { viewModel.markRead($0) }

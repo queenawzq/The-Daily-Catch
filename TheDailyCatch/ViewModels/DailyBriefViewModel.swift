@@ -7,8 +7,10 @@ class DailyBriefViewModel {
     var storiesRead: Set<UUID> = []
     var expandedStory: Story?
     var isLoading: Bool = false
+    var isLoadingDeepContent: Bool = false
     var error: String?
     var briefDate: Date?
+    private var deepContentLoadedIds: Set<UUID> = []
 
     private let apiService = OpenRouterService.shared
     private let cacheService = BriefCacheService.shared
@@ -96,6 +98,40 @@ class DailyBriefViewModel {
             self.error = error.localizedDescription
         }
         isLoading = false
+    }
+
+    func hasDeepContent(for story: Story) -> Bool {
+        deepContentLoadedIds.contains(story.id)
+    }
+
+    func loadDeepContent(for index: Int) async {
+        let story = stories[index]
+        guard !deepContentLoadedIds.contains(story.id) else { return }
+        isLoadingDeepContent = true
+        do {
+            let deep = try await apiService.fetchDeepContent(
+                headline: story.headline,
+                hook: story.hook,
+                context: story.context,
+                sources: story.sources
+            )
+            stories[index].timeline = deep.timeline
+            stories[index].fullCoverage = deep.fullCoverage
+            stories[index].whatToWatch = deep.whatToWatch
+            stories[index].linkedTerms = deep.linkedTerms
+            deepContentLoadedIds.insert(story.id)
+            // Update cache with deep content
+            let brief = DailyBrief(
+                stories: stories,
+                generatedAt: briefDate ?? Date(),
+                topics: prefs.selectedTopics,
+                energyMode: prefs.selectedEnergyMode
+            )
+            cacheService.saveBrief(brief)
+        } catch {
+            // Silent fail — user can retry by toggling deep mode
+        }
+        isLoadingDeepContent = false
     }
 
     func restart() {
