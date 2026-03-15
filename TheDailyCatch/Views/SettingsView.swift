@@ -8,7 +8,7 @@ struct SettingsView: View {
     @State private var showPaywall = false
     @AppStorage("pricingIsYearly") private var pricingIsYearly = true
     @State private var selectedLifeStage: LifeStage?
-    @State private var selectedTopics: Set<TopicInterest>
+    @State private var rankedTopics: [TopicInterest]
     @State private var selectedMotivation: ReadingMotivation?
     @State private var expandedSection: Int? = nil
     var onSave: () -> Void
@@ -19,7 +19,7 @@ struct SettingsView: View {
     init(onSave: @escaping () -> Void, onReset: @escaping () -> Void = {}) {
         let prefs = UserPreferencesService.shared
         _selectedLifeStage = State(initialValue: prefs.selectedLifeStage)
-        _selectedTopics = State(initialValue: Set(prefs.selectedTopics))
+        _rankedTopics = State(initialValue: Array(prefs.selectedTopics.prefix(3)))
         _selectedMotivation = State(initialValue: prefs.selectedMotivation)
         self.onSave = onSave
         self.onReset = onReset
@@ -53,10 +53,10 @@ struct SettingsView: View {
                             .onTapGesture {
                                 let prefs = UserPreferencesService.shared
                                 let changed = prefs.selectedLifeStage != selectedLifeStage
-                                    || Set(prefs.selectedTopics) != selectedTopics
+                                    || prefs.selectedTopics != rankedTopics
                                     || prefs.selectedMotivation != selectedMotivation
                                 prefs.selectedLifeStage = selectedLifeStage
-                                prefs.selectedTopics = Array(selectedTopics)
+                                prefs.selectedTopics = rankedTopics
                                 prefs.selectedMotivation = selectedMotivation
                                 dismiss()
                                 if changed {
@@ -104,19 +104,18 @@ struct SettingsView: View {
                             collapsibleSection(
                                 index: 2,
                                 title: "WHAT DO YOU ACTUALLY CARE ABOUT?",
-                                summary: "\(selectedTopics.count) selected"
+                                summary: rankedTopics.map(\.displayName).joined(separator: " > ")
                             ) {
                                 ScrollView {
                                     VStack(spacing: 10) {
                                         ForEach(TopicInterest.allCases) { topic in
-                                            let isSelected = selectedTopics.contains(topic)
+                                            let rank = rankedTopics.firstIndex(of: topic)
+                                            let isSelected = rank != nil
                                             Button {
-                                                if isSelected {
-                                                    if selectedTopics.count > 1 {
-                                                        selectedTopics.remove(topic)
-                                                    }
-                                                } else {
-                                                    selectedTopics.insert(topic)
+                                                if let rank = rank {
+                                                    rankedTopics.remove(at: rank)
+                                                } else if rankedTopics.count < 3 {
+                                                    rankedTopics.append(topic)
                                                 }
                                             } label: {
                                                 HStack(spacing: 14) {
@@ -126,9 +125,17 @@ struct SettingsView: View {
                                                         .font(AppTheme.mono(13, weight: .bold))
                                                         .foregroundStyle(AppTheme.textDark)
                                                     Spacer()
-                                                    Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                                                        .foregroundStyle(isSelected ? AppTheme.textDark : AppTheme.textMidGrey)
-                                                        .font(.title3)
+                                                    if let rank = rank {
+                                                        Text("\(rank + 1)")
+                                                            .font(AppTheme.mono(14, weight: .bold))
+                                                            .foregroundStyle(.white)
+                                                            .frame(width: 28, height: 28)
+                                                            .background(Circle().fill(Color(hex: "5D84C4")))
+                                                    } else {
+                                                        Circle()
+                                                            .strokeBorder(AppTheme.textMidGrey.opacity(0.4), lineWidth: 1.5)
+                                                            .frame(width: 28, height: 28)
+                                                    }
                                                 }
                                                 .padding(.horizontal, 20)
                                                 .padding(.vertical, 14)
@@ -139,6 +146,7 @@ struct SettingsView: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                                                 .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
                                             }
+                                            .opacity(rankedTopics.count >= 3 && !isSelected ? 0.5 : 1.0)
                                         }
                                     }
                                     .padding(.bottom, 6)
@@ -210,7 +218,12 @@ struct SettingsView: View {
                                 let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
                                 if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                    let root = scene.windows.first?.rootViewController {
-                                    root.present(av, animated: true)
+                                    // Walk up to the topmost presented VC (needed when inside a sheet)
+                                    var topVC = root
+                                    while let presented = topVC.presentedViewController {
+                                        topVC = presented
+                                    }
+                                    topVC.present(av, animated: true)
                                 }
                             }
                         }

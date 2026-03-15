@@ -47,10 +47,10 @@ struct Story: Codable, Identifiable {
     let readTime: String
     let timestamp: String
     let imageURL: String?
-    let timeline: [TimelineEvent]?
-    let fullCoverage: [SourceCoverage]?
-    let whatToWatch: String?
-    let linkedTerms: [LinkedTerm]?
+    var timeline: [TimelineEvent]?
+    var fullCoverage: [SourceCoverage]?
+    var whatToWatch: String?
+    var linkedTerms: [LinkedTerm]?
 }
 
 extension Color {

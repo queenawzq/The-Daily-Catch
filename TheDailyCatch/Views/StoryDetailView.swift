@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StoryDetailView: View {
-    let stories: [Story]
+    @Bindable var viewModel: DailyBriefViewModel
     let initialIndex: Int
     let onClose: () -> Void
     let onStoryViewed: (Story) -> Void
@@ -14,12 +14,15 @@ struct StoryDetailView: View {
     @State private var showPaywall = false
     @AppStorage("isPremium") private var isPremium = false
     @AppStorage("pricingIsYearly") private var pricingIsYearly = true
+    @State private var isScrollingCoverage = false
 
     private let bgColor = Color(hex: "D6D6D6")
     private let darkText = Color(hex: "2A2A2A")
 
-    init(stories: [Story], initialIndex: Int, onClose: @escaping () -> Void, onStoryViewed: @escaping (Story) -> Void) {
-        self.stories = stories
+    private var stories: [Story] { viewModel.stories }
+
+    init(viewModel: DailyBriefViewModel, initialIndex: Int, onClose: @escaping () -> Void, onStoryViewed: @escaping (Story) -> Void) {
+        self.viewModel = viewModel
         self.initialIndex = initialIndex
         self.onClose = onClose
         self.onStoryViewed = onStoryViewed
@@ -92,6 +95,9 @@ struct StoryDetailView: View {
             DragGesture(minimumDistance: 30)
                 .onChanged { _ in }
                 .onEnded { value in
+                    // Don't navigate stories while swiping full coverage cards
+                    guard !isScrollingCoverage else { return }
+
                     let horizontal = value.translation.width
                     let vertical = value.translation.height
 
@@ -162,20 +168,18 @@ struct StoryDetailView: View {
                 }
         )
         .ignoresSafeArea()
+        .onChange(of: currentIndex) { _, _ in
+            loadDeepContentIfNeeded()
+        }
         }
     }
 
     // MARK: - Helpers
 
-    private func cleanText(_ text: String) -> String {
-        var cleaned = text
-        let pattern = "\\[\\d+\\]"
-        if let regex = try? NSRegularExpression(pattern: pattern) {
-            cleaned = regex.stringByReplacingMatches(in: cleaned, range: NSRange(cleaned.startIndex..., in: cleaned), withTemplate: "")
+    private func loadDeepContentIfNeeded() {
+        if isDeepMode && !viewModel.hasDeepContent(for: story) {
+            Task { await viewModel.loadDeepContent(for: currentIndex) }
         }
-        cleaned = cleaned.replacingOccurrences(of: "[", with: "")
-            .replacingOccurrences(of: "]", with: "")
-        return cleaned
     }
 
     private func truncateToSentences(_ text: String, max: Int) -> String {
@@ -233,6 +237,9 @@ struct StoryDetailView: View {
                 .onTapGesture {
                     if isPremium {
                         isDeepMode = true
+                        if !viewModel.hasDeepContent(for: story) {
+                            Task { await viewModel.loadDeepContent(for: currentIndex) }
+                        }
                     } else {
                         isDeepMode = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -323,6 +330,12 @@ struct StoryDetailView: View {
 
                 // Deep mode sections
                 if isDeepMode {
+                    let isLoadingSkeleton = viewModel.isLoadingDeepContent && !viewModel.hasDeepContent(for: story)
+
+                    if isLoadingSkeleton && story.timeline == nil {
+                        TimelineSkeletonView()
+                    }
+
                     if let events = story.timeline, !events.isEmpty {
                         TimelineView(events: events)
                     }
@@ -331,9 +344,12 @@ struct StoryDetailView: View {
                         keyStat: story.keyStat,
                         keyFacts: story.keyFacts,
                         deepDive: story.deepDive,
-                        linkedTerms: story.linkedTerms,
-                        cleanText: cleanText
+                        linkedTerms: story.linkedTerms
                     )
+
+                    if isLoadingSkeleton && story.whatToWatch == nil {
+                        WhatToWatchSkeletonView()
+                    }
 
                     if let watchText = story.whatToWatch, !watchText.isEmpty {
                         WhatToWatchView(text: watchText)
@@ -371,7 +387,7 @@ struct StoryDetailView: View {
 
                 // Full coverage (moved to bottom)
                 if isDeepMode, let sources = story.fullCoverage, !sources.isEmpty {
-                    FullCoverageView(sources: sources)
+                    FullCoverageView(sources: sources, isScrolling: $isScrollingCoverage)
                 }
 
                 // Sources

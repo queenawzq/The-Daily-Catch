@@ -33,7 +33,7 @@ class UserPreferencesService {
         get {
             guard let data = defaults.data(forKey: Keys.topics),
                   let topics = try? JSONDecoder().decode([TopicInterest].self, from: data) else {
-                return [.techAI, .politics]
+                return [.techAI, .politics, .businessStartups]
             }
             return topics
         }
