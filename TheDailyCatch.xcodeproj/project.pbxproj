@@ -16,6 +16,7 @@
 		AA200001 /* OpenRouterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200002 /* OpenRouterService.swift */; };
 		AA200003 /* BriefCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200004 /* BriefCacheService.swift */; };
 		AA200005 /* UserPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200006 /* UserPreferencesService.swift */; };
+		AA200007 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200008 /* StoreManager.swift */; };
 		AA300001 /* DailyBriefViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA300002 /* DailyBriefViewModel.swift */; };
 		AA400001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400002 /* OnboardingView.swift */; };
 		AA400003 /* DailyBriefView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400004 /* DailyBriefView.swift */; };
@@ -49,6 +50,7 @@
 		AA200002 /* OpenRouterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenRouterService.swift; sourceTree = "<group>"; };
 		AA200004 /* BriefCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefCacheService.swift; sourceTree = "<group>"; };
 		AA200006 /* UserPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesService.swift; sourceTree = "<group>"; };
+		AA200008 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		AA300002 /* DailyBriefViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefViewModel.swift; sourceTree = "<group>"; };
 		AA400002 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		AA400004 /* DailyBriefView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefView.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 				AA200002 /* OpenRouterService.swift */,
 				AA200004 /* BriefCacheService.swift */,
 				AA200006 /* UserPreferencesService.swift */,
+				AA200008 /* StoreManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -258,6 +261,7 @@
 				AA200001 /* OpenRouterService.swift in Sources */,
 				AA200003 /* BriefCacheService.swift in Sources */,
 				AA200005 /* UserPreferencesService.swift in Sources */,
+				AA200007 /* StoreManager.swift in Sources */,
 				AA300001 /* DailyBriefViewModel.swift in Sources */,
 				AA400001 /* OnboardingView.swift in Sources */,
 				AA400003 /* DailyBriefView.swift in Sources */,

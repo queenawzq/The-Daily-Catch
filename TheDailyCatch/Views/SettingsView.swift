@@ -4,9 +4,9 @@ import StoreKit
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
-    @AppStorage("isPremium") private var isPremium = false
+    @Environment(StoreManager.self) private var storeManager
     @State private var showPaywall = false
-    @AppStorage("pricingIsYearly") private var pricingIsYearly = true
+    @State private var pricingIsYearly = true
     @State private var selectedLifeStage: LifeStage?
     @State private var rankedTopics: [TopicInterest]
     @State private var selectedMotivation: ReadingMotivation?
@@ -286,25 +286,25 @@ struct SettingsView: View {
                         .font(AppTheme.headline(14, weight: .bold))
                         .foregroundStyle(AppTheme.textDark)
 
-                    Text(isPremium ? "Deep Catch" : "Daily Catch Free")
+                    Text(storeManager.isPremium ? "Deep Catch" : "Daily Catch Free")
                         .font(AppTheme.body(14).weight(.medium))
-                        .foregroundStyle(isPremium ? ctaBlue : AppTheme.textMidGrey)
+                        .foregroundStyle(storeManager.isPremium ? ctaBlue : AppTheme.textMidGrey)
                 }
 
                 Spacer()
 
-                Text(isPremium ? "ACTIVE" : "FREE")
+                Text(storeManager.isPremium ? "ACTIVE" : "FREE")
                     .font(AppTheme.mono(10))
-                    .foregroundStyle(isPremium ? ctaBlue : AppTheme.textMidGrey)
+                    .foregroundStyle(storeManager.isPremium ? ctaBlue : AppTheme.textMidGrey)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 3)
                     .background(
                         Capsule()
-                            .fill(isPremium ? ctaBlue.opacity(0.12) : Color(hex: "F2EFEA"))
+                            .fill(storeManager.isPremium ? ctaBlue.opacity(0.12) : Color(hex: "F2EFEA"))
                     )
             }
 
-            if isPremium {
+            if storeManager.isPremium {
                 Text("Renews \(renewalDateString) · \(pricingIsYearly ? "$29.99/year" : "$3.99/month")")
                     .font(AppTheme.body(11).weight(.medium))
                     .foregroundStyle(AppTheme.textMidGrey)
@@ -317,7 +317,7 @@ struct SettingsView: View {
                 .frame(height: 1)
                 .padding(.vertical, 16)
 
-            if isPremium {
+            if storeManager.isPremium {
                 // Manage subscription
                 Button {
                     if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
@@ -365,6 +365,15 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
 
+                Button {
+                    Task { await storeManager.restorePurchases() }
+                } label: {
+                    Text("Restore Purchases")
+                        .font(AppTheme.body(13).weight(.medium))
+                        .foregroundStyle(ctaBlue)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
             }
         }
         .padding(20)
@@ -380,15 +389,17 @@ struct SettingsView: View {
                     PaywallOverlayView(
                         paperBgColor: Color(hex: "E8E7E5"),
                         pricingIsYearly: $pricingIsYearly,
-                        onUnlock: {
-                            isPremium = true
-                            showPaywall = false
-                        },
+                        storeManager: storeManager,
                         onDismiss: {
                             showPaywall = false
                         }
                     )
                 }
+            }
+        }
+        .onChange(of: storeManager.isPremium) { _, newValue in
+            if newValue {
+                showPaywall = false
             }
         }
     }

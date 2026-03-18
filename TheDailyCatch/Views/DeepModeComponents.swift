@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 // MARK: - Deep Dive View
 
@@ -553,11 +554,15 @@ struct AnnotatedTextView: View {
 struct PaywallOverlayView: View {
     let paperBgColor: Color
     @Binding var pricingIsYearly: Bool
-    let onUnlock: () -> Void
+    var storeManager: StoreManager
     let onDismiss: () -> Void
 
     private let darkText = Color(hex: "2A2A2A")
     private let ctaBlue = Color(hex: "375BCD")
+
+    private var selectedProduct: Product? {
+        pricingIsYearly ? storeManager.yearlyProduct : storeManager.monthlyProduct
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -593,10 +598,10 @@ struct PaywallOverlayView: View {
 
                 // Pricing toggle
                 HStack(spacing: 0) {
-                    pricingPill(label: "$3.99/mo", subtitle: "Monthly", savingsText: nil, isSelected: !pricingIsYearly) {
+                    pricingPill(label: storeManager.monthlyPriceString + "/mo", subtitle: "Monthly", savingsText: nil, isSelected: !pricingIsYearly) {
                         pricingIsYearly = false
                     }
-                    pricingPill(label: "$29.99/yr", subtitle: "Yearly", savingsText: "Save 37%", isSelected: pricingIsYearly) {
+                    pricingPill(label: storeManager.yearlyPriceString + "/yr", subtitle: "Yearly", savingsText: "Save 37%", isSelected: pricingIsYearly) {
                         pricingIsYearly = true
                     }
                 }
@@ -607,19 +612,39 @@ struct PaywallOverlayView: View {
                 )
 
                 // CTA button
-                Button(action: onUnlock) {
-                    Text("Try free for 7 days")
-                        .font(AppTheme.body(16).weight(.semibold))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(ctaBlue)
-                        )
+                Button {
+                    guard let product = selectedProduct else { return }
+                    Task { await storeManager.purchase(product) }
+                } label: {
+                    ZStack {
+                        Text(storeManager.isEligibleForTrial ? "Try free for 7 days" : "Subscribe")
+                            .font(AppTheme.body(16).weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(ctaBlue)
+                            )
+                            .opacity(storeManager.isPurchasing ? 0.5 : 1)
+
+                        if storeManager.isPurchasing {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                    }
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 24)
+                .disabled(storeManager.isPurchasing)
+
+                if let error = storeManager.purchaseError {
+                    Text(error)
+                        .font(AppTheme.mono(11))
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
 
                 Text("Cancel anytime · No commitment")
                     .font(AppTheme.mono(10))

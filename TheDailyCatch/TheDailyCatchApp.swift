@@ -12,6 +12,7 @@ enum AppState {
 struct TheDailyCatchApp: App {
     @State private var appState: AppState = UserPreferencesService.shared.isOnboardingComplete ? .mainFeed : .splash
     @State private var viewModel = DailyBriefViewModel()
+    @State private var storeManager = StoreManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -46,6 +47,7 @@ struct TheDailyCatchApp: App {
                         .preferredColorScheme(.dark)
                 }
             }
+            .environment(storeManager)
         }
     }
 }

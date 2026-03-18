@@ -12,8 +12,8 @@ struct StoryDetailView: View {
     @State private var showCaughtUp = false
     @State private var viewedIndices: Set<Int> = []
     @State private var showPaywall = false
-    @AppStorage("isPremium") private var isPremium = false
-    @AppStorage("pricingIsYearly") private var pricingIsYearly = true
+    @Environment(StoreManager.self) private var storeManager
+    @State private var pricingIsYearly = true
     @State private var isScrollingCoverage = false
 
     private let bgColor = Color(hex: "D6D6D6")
@@ -62,18 +62,13 @@ struct StoryDetailView: View {
                 }
 
             // Paywall overlay
-            if !isPremium && isDeepMode && showPaywall {
+            if !storeManager.isPremium && isDeepMode && showPaywall {
                 VStack {
                     Spacer()
                     PaywallOverlayView(
                         paperBgColor: bgColor,
                         pricingIsYearly: $pricingIsYearly,
-                        onUnlock: {
-                            withAnimation {
-                                isPremium = true
-                                showPaywall = false
-                            }
-                        },
+                        storeManager: storeManager,
                         onDismiss: {
                             withAnimation {
                                 isDeepMode = false
@@ -171,6 +166,13 @@ struct StoryDetailView: View {
         .onChange(of: currentIndex) { _, _ in
             loadDeepContentIfNeeded()
         }
+        .onChange(of: storeManager.isPremium) { _, newValue in
+            if newValue {
+                withAnimation {
+                    showPaywall = false
+                }
+            }
+        }
         }
     }
 
@@ -228,14 +230,14 @@ struct StoryDetailView: View {
                         .font(AppTheme.mono(15.4, weight: .bold))
                         .foregroundStyle(isDeepMode ? darkText : darkText.opacity(0.4))
                         .underline(isDeepMode)
-                    if !isPremium {
+                    if !storeManager.isPremium {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 10))
                             .foregroundStyle(isDeepMode ? darkText : darkText.opacity(0.4))
                     }
                 }
                 .onTapGesture {
-                    if isPremium {
+                    if storeManager.isPremium {
                         isDeepMode = true
                         if !viewModel.hasDeepContent(for: story) {
                             Task { await viewModel.loadDeepContent(for: currentIndex) }
