@@ -249,7 +249,7 @@ struct SettingsView: View {
                         }
 
                         // ── VERSION ──
-                        Text("The Daily Catch v1.7 · Stay informed, not overwhelmed.")
+                        Text("The Daily Catch v1.8 · Stay informed, not overwhelmed.")
                             .font(AppTheme.mono(9))
                             .lineLimit(1)
                             .foregroundStyle(AppTheme.textDark.opacity(0.3))

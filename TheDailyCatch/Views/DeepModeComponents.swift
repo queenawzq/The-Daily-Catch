@@ -613,7 +613,13 @@ struct PaywallOverlayView: View {
 
                 // CTA button
                 Button {
-                    guard let product = selectedProduct else { return }
+                    guard let product = selectedProduct else {
+                        print("[Paywall] No product available. Products loaded: \(storeManager.products.count)")
+                        storeManager.purchaseError = "Products not loaded yet. Please try again."
+                        Task { await storeManager.loadProducts() }
+                        return
+                    }
+                    print("[Paywall] Purchasing: \(product.id)")
                     Task { await storeManager.purchase(product) }
                 } label: {
                     ZStack {
