@@ -65,8 +65,9 @@ final class StoreManager {
     func loadProducts() async {
         do {
             products = try await Product.products(for: [monthlyID, yearlyID])
+            print("[StoreManager] Loaded \(products.count) products: \(products.map { $0.id })")
         } catch {
-            print("Failed to load products: \(error)")
+            print("[StoreManager] Failed to load products: \(error)")
         }
     }
 
