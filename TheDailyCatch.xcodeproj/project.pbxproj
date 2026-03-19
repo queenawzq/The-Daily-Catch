@@ -30,15 +30,18 @@
 		AA400019 /* FishingAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400020 /* FishingAnimationView.swift */; };
 		AA400021 /* DeepModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400022 /* DeepModeComponents.swift */; };
 		AA500001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500002 /* AppTheme.swift */; };
-		AA900001 /* TextHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900002 /* TextHelpers.swift */; };
 		AA600001 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA600002 /* Secrets.plist */; };
 		AA700001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA700002 /* Assets.xcassets */; };
 		AA800001 /* Junicode-BoldCondensed.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA800002 /* Junicode-BoldCondensed.ttf */; };
 		AA800003 /* SpaceGrotesk-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA800004 /* SpaceGrotesk-VariableFont_wght.ttf */; };
 		AA800005 /* Disket-Mono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA800006 /* Disket-Mono-Bold.ttf */; };
+		AA900001 /* TextHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900002 /* TextHelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9D016CF12F6A3D3A00011CCB /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = Products.storekit; path = TheDailyCatch/Products.storekit; sourceTree = "<group>"; };
+		9D016CF22F6A3F0600011CCB /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = Products.storekit; path = TheDailyCatch/Products.storekit; sourceTree = "<group>"; };
+		9D016CF32F6A3FDC00011CCB /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 		AA000002 /* TheDailyCatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheDailyCatchApp.swift; sourceTree = "<group>"; };
 		AA000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA000006 /* The Daily Catch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "The Daily Catch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,12 +67,12 @@
 		AA400020 /* FishingAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishingAnimationView.swift; sourceTree = "<group>"; };
 		AA400022 /* DeepModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepModeComponents.swift; sourceTree = "<group>"; };
 		AA500002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
-		AA900002 /* TextHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHelpers.swift; sourceTree = "<group>"; };
 		AA600002 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 		AA700002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA800002 /* Junicode-BoldCondensed.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Junicode-BoldCondensed.ttf"; sourceTree = "<group>"; };
 		AA800004 /* SpaceGrotesk-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		AA800006 /* Disket-Mono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Disket-Mono-Bold.ttf"; sourceTree = "<group>"; };
+		AA900002 /* TextHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +89,9 @@
 		AA000020 = {
 			isa = PBXGroup;
 			children = (
+				9D016CF32F6A3FDC00011CCB /* Products.storekit */,
+				9D016CF12F6A3D3A00011CCB /* Products.storekit */,
+				9D016CF22F6A3F0600011CCB /* Products.storekit */,
 				AA000021 /* TheDailyCatch */,
 				AA000022 /* Products */,
 			);
