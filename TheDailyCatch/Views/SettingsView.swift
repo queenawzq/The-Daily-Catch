@@ -342,6 +342,15 @@ struct SettingsView: View {
                     .font(AppTheme.body(11).weight(.medium))
                     .foregroundStyle(AppTheme.textDark.opacity(0.3))
                     .padding(.top, 8)
+
+                // Legal links
+                HStack(spacing: 16) {
+                    Link("Terms of Use (EULA)", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                    Link("Privacy Policy", destination: URL(string: "https://www.hexagontechnologies.io/copy-of-privacy-policy-1")!)
+                }
+                .font(AppTheme.mono(10))
+                .foregroundStyle(AppTheme.textDark.opacity(0.45))
+                .padding(.top, 8)
             } else {
                 // Free user: unlock prompt
                 Text("Unlock Deep mode — backstory, full coverage, timelines, and more on every story.")
@@ -374,6 +383,15 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 4)
+
+                // Legal links
+                HStack(spacing: 16) {
+                    Link("Terms of Use (EULA)", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                    Link("Privacy Policy", destination: URL(string: "https://www.hexagontechnologies.io/copy-of-privacy-policy-1")!)
+                }
+                .font(AppTheme.mono(10))
+                .foregroundStyle(AppTheme.textDark.opacity(0.45))
+                .padding(.top, 8)
             }
         }
         .padding(20)

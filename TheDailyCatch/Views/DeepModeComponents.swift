@@ -656,6 +656,14 @@ struct PaywallOverlayView: View {
                     .font(AppTheme.mono(10))
                     .foregroundStyle(darkText.opacity(0.35))
 
+                // Legal links
+                HStack(spacing: 16) {
+                    Link("Terms of Use (EULA)", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                    Link("Privacy Policy", destination: URL(string: "https://www.hexagontechnologies.io/copy-of-privacy-policy-1")!)
+                }
+                .font(AppTheme.mono(10))
+                .foregroundStyle(darkText.opacity(0.45))
+
                 // Dismiss
                 Button(action: onDismiss) {
                     Text("Not now — back to Quick")
