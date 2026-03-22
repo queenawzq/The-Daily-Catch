@@ -77,12 +77,24 @@ class DailyBriefViewModel {
         isLoading = true
         error = nil
         do {
-            let fetched = try await apiService.fetchBrief(
-                topics: prefs.selectedTopics,
-                energyMode: prefs.selectedEnergyMode,
-                lifeStage: prefs.selectedLifeStage,
-                motivation: prefs.selectedMotivation
-            )
+            // Try server first (pre-generated, fast), fall back to direct API
+            let fetched: [Story]
+            do {
+                fetched = try await apiService.fetchBriefFromServer(
+                    topics: prefs.selectedTopics,
+                    energyMode: prefs.selectedEnergyMode
+                )
+                print("[DailyBrief] Loaded from server")
+            } catch {
+                print("[DailyBrief] Server fetch failed (\(error)), falling back to direct API")
+                fetched = try await apiService.fetchBrief(
+                    topics: prefs.selectedTopics,
+                    energyMode: prefs.selectedEnergyMode,
+                    lifeStage: prefs.selectedLifeStage,
+                    motivation: prefs.selectedMotivation
+                )
+                print("[DailyBrief] Loaded from direct API")
+            }
             let brief = DailyBrief(
                 stories: fetched,
                 generatedAt: Date(),
@@ -109,12 +121,21 @@ class DailyBriefViewModel {
         guard !deepContentLoadedIds.contains(story.id) else { return }
         isLoadingDeepContent = true
         do {
-            let deep = try await apiService.fetchDeepContent(
-                headline: story.headline,
-                hook: story.hook,
-                context: story.context,
-                sources: story.sources
-            )
+            // Try server first, fall back to direct API
+            let deep: OpenRouterService.DeepContent
+            do {
+                deep = try await apiService.fetchDeepContentFromServer(storyId: story.id.uuidString)
+                print("[DailyBrief] Deep content loaded from server")
+            } catch {
+                print("[DailyBrief] Server deep fetch failed (\(error)), falling back to direct API")
+                deep = try await apiService.fetchDeepContent(
+                    headline: story.headline,
+                    hook: story.hook,
+                    context: story.context,
+                    sources: story.sources
+                )
+                print("[DailyBrief] Deep content loaded from direct API")
+            }
             stories[index].timeline = deep.timeline
             stories[index].fullCoverage = deep.fullCoverage
             stories[index].whatToWatch = deep.whatToWatch

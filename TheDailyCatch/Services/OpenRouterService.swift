@@ -3,6 +3,8 @@ import Foundation
 class OpenRouterService {
     static let shared = OpenRouterService()
 
+    private let serverBaseURL = "https://the-daily-catch-server-production.up.railway.app"
+
     private let endpoint = "https://openrouter.ai/api/v1/chat/completions"
     private let model = "perplexity/sonar"
 
@@ -281,6 +283,107 @@ class OpenRouterService {
     private static func colorForCategory(_ category: String) -> String {
         let key = category.uppercased()
         return categoryColorMap[key] ?? "3366FF"
+    }
+
+    // MARK: - Server-backed fetch (fast, pre-generated)
+
+    private struct ServerBriefResponse: Codable {
+        let generatedAt: String
+        let stories: [ServerStory]
+    }
+
+    private struct ServerStory: Codable {
+        let id: String
+        let headline: String
+        let category: String
+        let categoryColor: String
+        let hook: String
+        let context: String
+        let soWhat: String
+        let deepDive: String
+        let keyStat: KeyStat?
+        let keyFacts: [String]?
+        let source: String
+        let sourceURL: String
+        let sources: [String]
+        let readTime: String
+        let timestamp: String
+        let imageURL: String?
+        let timeline: [TimelineEvent]?
+        let fullCoverage: [SourceCoverage]?
+        let whatToWatch: String?
+        let linkedTerms: [LinkedTerm]?
+    }
+
+    private struct ServerDeepContent: Codable {
+        let timeline: [TimelineEvent]?
+        let fullCoverage: [SourceCoverage]?
+        let whatToWatch: String?
+        let linkedTerms: [LinkedTerm]?
+    }
+
+    /// Fetch brief from The Daily Catch server (pre-generated, fast).
+    func fetchBriefFromServer(topics: [TopicInterest], energyMode: EnergyMode) async throws -> [Story] {
+        let topicParams = topics.map(\.rawValue).joined(separator: ",")
+        guard let url = URL(string: "\(serverBaseURL)/api/brief?topics=\(topicParams)&energy=\(energyMode.rawValue)") else {
+            throw OpenRouterError.invalidResponse
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            throw OpenRouterError.httpError(statusCode)
+        }
+
+        let decoder = JSONDecoder()
+        let briefResponse = try decoder.decode(ServerBriefResponse.self, from: data)
+
+        return briefResponse.stories.map { s in
+            Story(
+                id: UUID(uuidString: s.id) ?? UUID(),
+                headline: s.headline,
+                category: s.category,
+                categoryColor: s.categoryColor,
+                hook: s.hook,
+                context: s.context,
+                soWhat: s.soWhat,
+                deepDive: s.deepDive,
+                keyStat: s.keyStat,
+                keyFacts: s.keyFacts,
+                source: s.source,
+                sourceURL: s.sourceURL,
+                sources: s.sources,
+                readTime: s.readTime,
+                timestamp: s.timestamp,
+                imageURL: s.imageURL,
+                timeline: s.timeline,
+                fullCoverage: s.fullCoverage,
+                whatToWatch: s.whatToWatch,
+                linkedTerms: s.linkedTerms
+            )
+        }
+    }
+
+    /// Fetch deep content from The Daily Catch server (pre-generated, fast).
+    func fetchDeepContentFromServer(storyId: String) async throws -> DeepContent {
+        guard let url = URL(string: "\(serverBaseURL)/api/deep/\(storyId)") else {
+            throw OpenRouterError.invalidResponse
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            throw OpenRouterError.httpError(statusCode)
+        }
+
+        let decoder = JSONDecoder()
+        let serverDeep = try decoder.decode(ServerDeepContent.self, from: data)
+        return DeepContent(
+            timeline: serverDeep.timeline,
+            fullCoverage: serverDeep.fullCoverage,
+            whatToWatch: serverDeep.whatToWatch,
+            linkedTerms: serverDeep.linkedTerms
+        )
     }
 
     // MARK: - Deep Content (lazy-loaded per story)
