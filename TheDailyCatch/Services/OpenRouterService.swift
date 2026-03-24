@@ -48,12 +48,11 @@ class OpenRouterService {
         }
 
         let systemPrompt = """
-        You are a news curator who prioritizes understanding over volume. \
-        For every story, start with "why would a busy person care about this?" and work backward to what happened.
+        You are a news curator who prioritizes understanding over volume. Your guiding question for every story: "Why would a busy person care about this?" Work backward from that to what happened.
 
-        SELECTION FILTERS — apply all three before including a story:
-        1. Scale of Impact: Does this change how people live, work, spend, or plan?
-        2. Dinner Table Test: Would someone who doesn't follow the news find this interesting?
+        SELECTION HIERARCHY — apply in order:
+        1. Dinner Table Test (mandatory): "Is this something people are actually talking about or would want to discuss?" If a story dominates the news cycle, it MUST appear. An informed person who reads your briefing should never think "how did they miss that?"
+        2. Scale of Impact: Does this change how people live, work, spend, or plan?
         3. Context Gap: Is this something people saw a headline about but couldn't explain?
 
         EDITORIAL RULES:
@@ -62,6 +61,7 @@ class OpenRouterService {
         - Do not frame stories as two-sided conflicts when they are more nuanced.
         - Let facts and context do the work.
         - When uncertain, say so: "it's unclear whether," "analysts are divided on."
+        - Political stories must read as neutral to readers across the spectrum. A conservative and a liberal should both feel the summary is fair.
 
         \(toneHint) \(stageHint)
         """
@@ -87,88 +87,96 @@ class OpenRouterService {
         dateFormatter.dateFormat = "MMMM d, yyyy"
         let todayString = dateFormatter.string(from: Date())
 
-        // Build explicit per-slot category assignments for all 5 stories.
-        // Rank-based distribution: #1 gets 3 stories, #2 gets 1, #3 gets 1.
+        // Slot distribution: Lead(T1), T2, T3, T1-second, Wildcard
         var slotCategories: [String] = []
         switch topicCategories.count {
         case 0:
             slotCategories = ["WORLD", "TECH", "POLITICS", "HEALTH", "BUSINESS"]
         case 1:
-            slotCategories = Array(repeating: topicCategories[0], count: 5)
+            slotCategories = [topicCategories[0], topicCategories[0], topicCategories[0],
+                              topicCategories[0], topicCategories[0]]
         case 2:
-            // #1 gets 3, #2 gets 2 — interleaved
+            // Lead(T1), T2, T1-second, T2-second, Wildcard
             slotCategories = [topicCategories[0], topicCategories[1],
-                              topicCategories[0], topicCategories[1],
-                              topicCategories[0]]
+                              topicCategories[0], topicCategories[1], "WILDCARD"]
         default:
-            // #1 gets 3, #2 gets 1, #3 gets 1 — interleaved
+            // Lead(T1), T2, T3, T1-second, Wildcard
             slotCategories = [topicCategories[0], topicCategories[1],
-                              topicCategories[0], topicCategories[2],
-                              topicCategories[0]]
+                              topicCategories[2], topicCategories[0], "WILDCARD"]
         }
-        let slotAssignments = slotCategories.enumerated().map { (i, cat) in
-            "Story #\(i + 1): category = \"\(cat)\""
-        }.joined(separator: "\n        ")
+
+        // Build descriptive slot assignment text for the prompt
+        var slotLines: [String] = []
+        for (i, cat) in slotCategories.enumerated() {
+            let num = i + 1
+            if i == 0 {
+                slotLines.append("- Story #\(num) — LEAD STORY (category = \"\(cat)\"): The single biggest, most talked-about headline within this category. If someone read only this story, they'd still feel plugged into the news. Apply the Dinner Table Test at maximum strength here.")
+            } else if cat == "WILDCARD" {
+                slotLines.append("- Story #\(num) — WILDCARD (category = any of: \(categoriesList)): The story the reader didn't know they needed. Surprising, important, and conversation-worthy. Pick the most compelling unused story from any of the user's topics.")
+            } else if i == 3 && topicCategories.count >= 3 {
+                slotLines.append("- Story #\(num) (category = \"\(cat)\"): Second-best story from the user's primary interest. Must be genuinely compelling on its own, not filler.")
+            } else {
+                slotLines.append("- Story #\(num) (category = \"\(cat)\"): The most important story from this category.")
+            }
+        }
+        let slotAssignmentText = slotLines.joined(separator: "\n        ")
 
         let userPrompt = """
-        Today is \(todayString). Give me the 5 most important stories from the last 24-48 hours.
+        Today is \(todayString). Give me the 5 most important stories a person should know about right now.
 
-        ALL 5 STORIES HAVE ASSIGNED CATEGORIES:
-        Each story below has a pre-assigned category. You MUST find a story that genuinely fits that specific category.
-        \(slotAssignments)
+        SLOT ASSIGNMENTS:
+        \(slotAssignmentText)
 
-        STORY #1 — LEAD STORY:
-        Story #1 should be the BIGGEST, most impactful headline within its assigned category. Apply the Dinner Table Test: pick the story in that category that people are most likely talking about right now.
+        CATEGORY FIT TEST:
+        "Would this story appear in a dedicated [CATEGORY] section of a major newspaper?" If no, pick a different story.
+        - TECH = technology companies, products, AI, software, hardware, chips, apps, cybersecurity.
+        - BUSINESS = companies, earnings, markets, startups, M&A, retail, labor.
+        - MONEY = personal finance, investing, interest rates, crypto, economic indicators.
+        - WORLD = international relations, geopolitics, foreign affairs, conflicts.
+        - POLITICS = domestic policy, elections, legislation, government actions.
+        - HEALTH = medical research, public health, FDA, wellness.
+        - CLIMATE = environment, energy, sustainability, extreme weather.
+        - CULTURE = entertainment, arts, media, social trends, viral moments.
+        - SPORTS = athletic competitions, teams, players, tournaments, records.
+        - HOUSING = real estate, mortgages, urban development, housing data.
 
-        WHAT "GENUINELY FITS" MEANS — apply this test: "Would this story appear in a dedicated [CATEGORY] section of a major newspaper?" If no, pick a different story.
-        - TECH = technology companies, products, AI, software, hardware, chips, apps. Examples: Apple launches a product, OpenAI releases a model, NVIDIA earnings, a cybersecurity breach at a tech company.
-        - BUSINESS = companies, earnings, markets, startups, M&A, retail. Examples: Tesla reports earnings, Amazon layoffs, a startup IPOs, retail sales data.
-        - MONEY = personal finance, investing, interest rates, crypto, economic indicators. Examples: Fed changes rates, stock market milestone, inflation report.
-        - WORLD = international relations, geopolitics, foreign affairs. Examples: UN vote, trade deal, diplomatic summit.
-        - POLITICS = domestic policy, elections, legislation, government. Examples: new bill passed, Supreme Court ruling, election polls.
-        - HEALTH = medical research, public health, wellness. Examples: FDA approves drug, disease outbreak, new study.
-        - CLIMATE = environment, energy, sustainability. Examples: emissions report, renewable energy milestone, extreme weather.
-        - CULTURE = entertainment, arts, media, social trends. Examples: award show, viral trend, streaming platform news.
-        - SPORTS = athletic competitions, teams, players, tournaments. Examples: championship result, trade deal, record broken.
-        - HOUSING = real estate, mortgages, urban development. Examples: housing starts data, mortgage rate change.
+        ROOT CAUSE RULE:
+        When a story's root cause is a war, conflict, or political action, it belongs in WORLD or POLITICS — even if its effects touch other sectors. "Oil prices surge because of war" = WORLD. "Airlines cancel flights because of conflict" = WORLD. The root cause determines the category.
+        Exception: if a secondary effect has become its own standalone story with independent developments (e.g., OPEC announces a production increase in response), that can be categorized independently.
 
-        CRITICAL — STORIES MUST BE INDEPENDENT:
-        - Each of the 5 stories must be about a completely different event, topic, and subject.
-        - NO OVERLAP: If one story is about a war or conflict, the other stories MUST NOT mention that war, conflict, or any of its side effects (oil prices due to the war, sanctions related to the war, security fears from the war, travel disruptions from the war, etc.). These are all the SAME story from different angles — pick genuinely unrelated stories instead.
-        - LITMUS TEST: If you removed any one story from the briefing, would the reader still learn about the same event from another story? If yes, you have duplicates. Remove them.
-        - A story about Trump, a president, military action, war, Pentagon, sanctions, drone strikes, or geopolitics is a POLITICS or WORLD story. It is NEVER a TECH, BUSINESS, MONEY, HEALTH, SPORTS, CULTURE, or HOUSING story, even if it tangentially involves those sectors.
-        - "Oil prices surge because of war" is a WAR story, not a BUSINESS story. "Airlines raise fares because of war" is a WAR story, not a BUSINESS story. "Security increased because of war" is a WAR story, not a TECH story. The root cause determines the category.
-        - If a war or conflict dominates the news, you MUST look beyond it. There is ALWAYS a product launch, earnings report, scientific study, sports result, or cultural event happening. Search beyond the top headlines — go to page 2.
+        STORY DISTINCTNESS:
+        Each story must teach the reader something they would not learn from the other four. Apply this test: if you removed this story, would the reader still learn about the same event from another story? If yes, you have a duplicate — replace it.
+        Two stories CAN involve the same broader situation IF they cover genuinely independent developments with different stakeholders, data, and implications.
 
-        RECENCY: Only include stories that broke or had major developments within the last 48 hours. Do NOT include older stories.
+        VIOLENCE / CRIME RULE:
+        Stories about shootings, attacks, hate crimes, terrorism, or violent incidents belong in POLITICS or WORLD only — never TECH, SPORTS, CULTURE, HEALTH, CLIMATE, MONEY, BUSINESS, or HOUSING, even if they happen at a school, stadium, concert, hospital, or business.
 
-        SOURCE REQUIREMENTS:
-        - Each story must be informed by at least 2-3 cross-referenced sources.
-        - Prefer wire services (Reuters, AP) as the factual backbone.
-        - The "sources" array must list the actual outlets you consulted, not generic names.
+        RECENCY CHECK:
+        Only include stories that broke or had a major NEW development within the last 24 hours. Before including any story, ask: "Did something new happen with this in the last 24 hours, or am I recycling an older story?" If you are not confident it's fresh, do not include it.
 
-        MANDATORY: Each story MUST actually be about its assigned category. Do NOT return a politics/war story and label it as TECH or SPORTS. If you cannot find a genuine story for the assigned category, find a lesser-known story — there is always one. The category assignment is a hard constraint, not a suggestion.
-        - VIOLENCE / CRIME RULE: Stories about shootings, attacks, hate crimes, terrorism, or violent incidents are NEVER TECH, SPORTS, CULTURE, HEALTH, CLIMATE, MONEY, BUSINESS, or HOUSING stories — even if they happen at a school, stadium, concert, hospital, or business. A campus shooting is NOT a SPORTS story. A synagogue attack is NOT a CULTURE story. These belong in POLITICS or WORLD only.
-        - CULTURE stories should be about entertainment, arts, media, and social trends — not violence, crime, or tragedy.
+        SO-WHAT GATEKEEPER:
+        If you cannot write a compelling "soWhat" explaining how this story affects the reader's life, money, career, or understanding of the world — the story does not belong. Replace it with one where the stakes are clear.
+
+        SOURCES:
+        Each story must be cross-referenced across at least 2-3 sources. Prefer wire services (Reuters, AP) as the factual backbone. The "sources" array must list the actual outlets you consulted, not generic names.
 
         CATEGORY VALUES — use EXACTLY these strings, no variations:
         \(allCategories)
-        Do NOT invent categories like "TECH INDUSTRY", "GEOPOLITICS", "AI", "ECONOMY", etc.
 
-        For each story, provide a JSON object with these exact fields:
-        - "category": see CATEGORY RULES above
+        For each story, return a JSON object with these exact fields:
+        - "category": one of the exact category strings above
         - "headline": clear, compelling headline (max 12 words)
-        - "hook": One sentence. What happened, in plain language. Not a paragraph — one sentence, roughly \(wordCount) words.
-        - "context": Two to three sentences. Why this is happening now, what led here, the bigger picture. Roughly \(wordCount) words.
-        - "soWhat": One to two sentences. How this affects the reader's life, money, or world. This is the most important field — if you can't write a compelling "so what," the story doesn't belong.
-        - "keyStat": {"number": "90%", "context": "of Iran's military capabilities degraded, according to President Trump"} — pull out the single most striking number or statistic from this story. If no clear stat exists, omit this field.
-        - "keyFacts": array of 5-7 strings, each a single concise fact or development from this story. These replace the deep dive paragraph — each fact should add new information beyond the hook/context. Do NOT use bullet markers or arrows, just the plain text of each fact.
-        - "deepDive": (fallback) 3-4 sentences combining all key facts into prose. Go deeper — provide historical context, key stakeholders, competing perspectives, or underlying trends that explain the full picture.
-        - "source": name of the primary news source
+        - "hook": One sentence, plain language. What happened. ~\(wordCount) words.
+        - "context": 2-3 sentences. Why now, what led here, the bigger picture. ~\(wordCount) words.
+        - "soWhat": 1-2 sentences. How this affects the reader. The most important field.
+        - "keyStat": {"number": "90%", "context": "explanation"} — most striking stat. Omit if none.
+        - "keyFacts": array of 5-7 concise facts beyond the hook/context. Plain text, no bullet markers.
+        - "deepDive": 3-4 sentences combining key facts into prose with historical context and competing perspectives.
+        - "source": primary news source name
         - "sourceURL": URL to the original article
-        - "sources": array of exactly 3 real outlet names consulted (e.g. ["Reuters", "Financial Times", "The Economist"])
-        - "readTime": estimated read time (e.g. "2 min read")
-        - "timestamp": when the story broke (e.g. "2h ago", "Today")
+        - "sources": array of exactly 3 real outlet names
+        - "readTime": e.g. "2 min read"
+        - "timestamp": when the story broke, e.g. "2h ago", "Today"
 
         Return ONLY a JSON array of 5 objects. No markdown, no code fences, just the raw JSON array.
         """
@@ -197,20 +205,22 @@ class OpenRouterService {
 
         var allStories = try parseStories(from: data)
 
-        // Slot-aware category validation — all 5 stories have assigned categories.
+        // Slot-aware category validation
         for i in 0..<allStories.count {
             if i < slotCategories.count {
                 let expectedCat = slotCategories[i]
 
                 if Self.isViolenceOrConflictStory(allStories[i]) && expectedCat != "WORLD" && expectedCat != "POLITICS" {
-                    // Violence/conflict content shouldn't masquerade as TECH, SPORTS, etc.
                     allStories[i] = Self.storyWithCategory(allStories[i], category: "WORLD")
+                } else if expectedCat == "WILDCARD" {
+                    // Wildcard slot: validate category but let AI choose
+                    let normalized = allStories[i].category.uppercased()
+                    let validCat = Self.validCategories.contains(normalized) ? normalized : "WORLD"
+                    allStories[i] = Self.storyWithCategory(allStories[i], category: validCat)
                 } else {
-                    // Trust the slot assignment over the API's label
                     allStories[i] = Self.storyWithCategory(allStories[i], category: expectedCat)
                 }
             } else {
-                // Fallback for any extra stories beyond slot assignments
                 let normalized = allStories[i].category.uppercased()
                 let validCat = Self.validCategories.contains(normalized) ? normalized : "WORLD"
                 if validCat != allStories[i].category {
@@ -397,8 +407,13 @@ class OpenRouterService {
 
     func fetchDeepContent(headline: String, hook: String, context: String, sources: [String]) async throws -> DeepContent {
         let systemPrompt = """
-        You are a news analyst providing deep-dive content for a specific story. \
-        Be factual, balanced, and thorough.
+        You are a news analyst providing deep-dive content for a specific story. Your job is to make the reader feel like they just had a 10-minute conversation with a knowledgeable friend who follows this topic closely.
+
+        Be factual, balanced, and thorough. Prioritize:
+        - Context that makes the reader smarter, not just more informed
+        - Connections to things the reader already knows about
+        - Explaining WHY something matters, not just WHAT happened
+        - Plain language over jargon. When jargon is unavoidable, explain it.
         """
 
         let sourcesHint = sources.joined(separator: ", ")
@@ -413,9 +428,9 @@ class OpenRouterService {
 
         Provide deep-dive supplementary content as a single JSON object with these fields:
 
-        - "timeline": array of 3-5 objects with {"date": "Mar 2024", "description": "What happened"} — chronological events leading to this story
+        - "timeline": array of 3-5 objects with {"date": "Mar 2024", "description": "What happened"} — chronological events leading to this story. Focus on the moments that explain WHY this is happening now.
         - "fullCoverage": array of EXACTLY 3 objects with {"name": "Reuters", "angle": "Market reaction — shares rose 4%...", "stance": "Neutral", "headline": "Article headline from this source", "summary": "4-6 paragraph summary of this outlet's reporting. Cover the main event, key quotes, data points, and context. Write in neutral journalistic tone. Separate paragraphs with double newlines.", "date": "March 4, 2026", "sourceURL": "https://..."} — different outlets' perspectives. Stance must be one of: "Neutral", "Analytical", "Critical", "Positive". sourceURL must be a real, valid URL to the actual article. The "name" should use real outlet names like \(sourcesHint).
-        - "whatToWatch": 1-2 sentences of forward-looking analysis — what could happen next
+        - "whatToWatch": 1-2 sentences of forward-looking analysis — what could happen next, and what signals to watch for. Be specific: name dates, deadlines, decisions, or data releases.
         - "linkedTerms": array of 2-3 objects with {"term": "jargon word", "explanation": "plain English explanation"} — terms the average reader would NOT know. Prioritize: (1) proper nouns and named events/organizations the reader may never have heard of (e.g. "Global Baku Forum", "AUKUS"), (2) legal or technical terms (e.g. "DOJ subpoena", "quantitative easing"), (3) acronyms. Do NOT pick common phrases like "multilateral cooperation" or "diplomatic norms" — pick the terms a reader would actually Google.
 
         Return ONLY a single JSON object (NOT an array). No markdown, no code fences, just the raw JSON object.
