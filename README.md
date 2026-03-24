@@ -69,6 +69,3 @@ TheDailyCatch/
 
 > `Secrets.plist` is gitignored and will not be committed.
 
-## License
-
-Copyright Hexagon Technologies LLC. All rights reserved.
