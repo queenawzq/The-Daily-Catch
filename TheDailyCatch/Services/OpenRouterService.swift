@@ -112,9 +112,9 @@ class OpenRouterService {
             if i == 0 {
                 slotLines.append("- Story #\(num) — LEAD STORY (category = \"\(cat)\"): The single biggest, most talked-about headline within this category. If someone read only this story, they'd still feel plugged into the news. Apply the Dinner Table Test at maximum strength here.")
             } else if cat == "WILDCARD" {
-                slotLines.append("- Story #\(num) — WILDCARD (category = any of: \(categoriesList)): The story the reader didn't know they needed. Surprising, important, and conversation-worthy. Pick the most compelling unused story from any of the user's topics.")
-            } else if i == 3 && topicCategories.count >= 3 {
-                slotLines.append("- Story #\(num) (category = \"\(cat)\"): Second-best story from the user's primary interest. Must be genuinely compelling on its own, not filler.")
+                slotLines.append("- Story #\(num) — WILDCARD (category = any of: \(categoriesList)): The story the reader didn't know they needed. Surprising, important, and conversation-worthy. Must be about a DIFFERENT subject area than all other stories.")
+            } else if let firstIdx = slotCategories[0..<i].firstIndex(of: cat) {
+                slotLines.append("- Story #\(num) (category = \"\(cat)\"): Second story from this category. Must cover a DIFFERENT subject area than Story #\(firstIdx + 1) (see THEMATIC DIVERSITY).")
             } else {
                 slotLines.append("- Story #\(num) (category = \"\(cat)\"): The most important story from this category.")
             }
@@ -129,10 +129,10 @@ class OpenRouterService {
 
         CATEGORY FIT TEST:
         "Would this story appear in a dedicated [CATEGORY] section of a major newspaper?" If no, pick a different story.
-        - TECH = technology companies, products, AI, software, hardware, chips, apps, cybersecurity.
+        - TECH = technology companies, products, AI, software, hardware, chips, apps, cybersecurity. Note: each TECH story should cover a different tech sub-sector (AI, cybersecurity, social media, hardware, etc.) — not multiple angles on the same sub-sector.
         - BUSINESS = companies, earnings, markets, startups, M&A, retail, labor.
         - MONEY = personal finance, investing, interest rates, crypto, economic indicators.
-        - WORLD = international relations, geopolitics, foreign affairs, conflicts.
+        - WORLD = international relations, geopolitics, foreign affairs, conflicts, humanitarian crises, diplomacy, territorial disputes, international organizations. A story is WORLD only if its core subject is the relationship BETWEEN nations or a crisis affecting a region — not when two countries happen to be involved in a tech, business, or trade story. "US and China compete in AI" is TECH. "US imposes export controls on China citing national security" is WORLD.
         - POLITICS = domestic policy, elections, legislation, government actions.
         - HEALTH = medical research, public health, FDA, wellness.
         - CLIMATE = environment, energy, sustainability, extreme weather.
@@ -144,9 +144,15 @@ class OpenRouterService {
         When a story's root cause is a war, conflict, or political action, it belongs in WORLD or POLITICS — even if its effects touch other sectors. "Oil prices surge because of war" = WORLD. "Airlines cancel flights because of conflict" = WORLD. The root cause determines the category.
         Exception: if a secondary effect has become its own standalone story with independent developments (e.g., OPEC announces a production increase in response), that can be categorized independently.
 
+        THEMATIC DIVERSITY:
+        The 5 stories together should give the reader a broad picture of what's happening across their interests — not a deep dive into one subtopic.
+        - Within a single category (e.g., multiple TECH stories): each story must be about a different INDUSTRY or SUBJECT AREA. If Story #1 is about AI chips, the other stories in that category should cover something completely different — a cybersecurity breach, a social media regulation, a product launch in a different sector. Multiple stories about AI/semiconductors from different companies is NOT diverse.
+        - Across categories: a story's SUBSTANCE must match its category, not just its geopolitical framing. Ask: "If I removed the country names, would this still belong in WORLD?" If the answer is no — if it's really a tech story, business deal, or energy story that happens to involve multiple countries — recategorize it or replace it.
+        - SELF-CHECK: Before finalizing, scan all 5 headlines together. If a reader could summarize the entire briefing as "it's all about [one topic]," you lack diversity. Replace the weakest story with something from a genuinely different domain.
+
         STORY DISTINCTNESS:
         Each story must teach the reader something they would not learn from the other four. Apply this test: if you removed this story, would the reader still learn about the same event from another story? If yes, you have a duplicate — replace it.
-        Two stories CAN involve the same broader situation IF they cover genuinely independent developments with different stakeholders, data, and implications.
+        Two stories CAN involve the same broader situation IF they cover genuinely independent developments with different stakeholders, data, and implications. But repackaging the same event from a different angle is not a distinct story.
 
         VIOLENCE / CRIME RULE:
         Stories about shootings, attacks, hate crimes, terrorism, or violent incidents belong in POLITICS or WORLD only — never TECH, SPORTS, CULTURE, HEALTH, CLIMATE, MONEY, BUSINESS, or HOUSING, even if they happen at a school, stadium, concert, hospital, or business.
@@ -158,9 +164,9 @@ class OpenRouterService {
         If you cannot write a compelling "soWhat" explaining how this story affects the reader's life, money, career, or understanding of the world — the story does not belong. Replace it with one where the stakes are clear.
 
         SOURCES:
-        Each story must be cross-referenced across at least 2-3 sources. Prefer wire services (Reuters, AP) as the factual backbone. The "sources" array must list the actual outlets you consulted, not generic names.
+        Each story must be cross-referenced across at least 2-3 sources. Prefer wire services (Reuters, AP) as the factual backbone. The "sources" array must list the actual outlets you consulted.
 
-        CATEGORY VALUES — use EXACTLY these strings, no variations:
+        CATEGORY VALUES — use EXACTLY these strings:
         \(allCategories)
 
         For each story, return a JSON object with these exact fields:
