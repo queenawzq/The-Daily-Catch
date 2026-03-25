@@ -79,21 +79,26 @@ class DailyBriefViewModel {
         do {
             // Try server first (pre-generated, fast), fall back to direct API
             let fetched: [Story]
+            let start = Date()
             do {
                 fetched = try await apiService.fetchBriefFromServer(
                     topics: prefs.selectedTopics,
                     energyMode: prefs.selectedEnergyMode
                 )
-                print("[DailyBrief] Loaded from server")
+                let elapsed = Date().timeIntervalSince(start)
+                print("[DailyBrief] Loaded from server in \(String(format: "%.2f", elapsed))s")
             } catch {
-                print("[DailyBrief] Server fetch failed (\(error)), falling back to direct API")
+                let elapsed = Date().timeIntervalSince(start)
+                print("[DailyBrief] Server fetch failed after \(String(format: "%.2f", elapsed))s (\(error)), falling back to direct API")
+                let fallbackStart = Date()
                 fetched = try await apiService.fetchBrief(
                     topics: prefs.selectedTopics,
                     energyMode: prefs.selectedEnergyMode,
                     lifeStage: prefs.selectedLifeStage,
                     motivation: prefs.selectedMotivation
                 )
-                print("[DailyBrief] Loaded from direct API")
+                let fallbackElapsed = Date().timeIntervalSince(fallbackStart)
+                print("[DailyBrief] Loaded from direct API in \(String(format: "%.2f", fallbackElapsed))s")
             }
             let brief = DailyBrief(
                 stories: fetched,

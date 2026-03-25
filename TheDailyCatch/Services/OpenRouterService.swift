@@ -5,6 +5,15 @@ class OpenRouterService {
 
     private let serverBaseURL = "https://the-daily-catch-server-production.up.railway.app"
 
+    /// Custom session with aggressive 5-second timeout for server requests.
+    /// Prevents 60-second hang when Railway container is sleeping.
+    private lazy var serverSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 5.0
+        config.timeoutIntervalForResource = 10.0
+        return URLSession(configuration: config)
+    }()
+
     private let endpoint = "https://openrouter.ai/api/v1/chat/completions"
     private let model = "perplexity/sonar"
 
@@ -316,14 +325,14 @@ class OpenRouterService {
         let hook: String
         let context: String
         let soWhat: String
-        let deepDive: String
+        let deepDive: String?
         let keyStat: KeyStat?
         let keyFacts: [String]?
-        let source: String
-        let sourceURL: String
-        let sources: [String]
-        let readTime: String
-        let timestamp: String
+        let source: String?
+        let sourceURL: String?
+        let sources: [String]?
+        let readTime: String?
+        let timestamp: String?
         let imageURL: String?
         let timeline: [TimelineEvent]?
         let fullCoverage: [SourceCoverage]?
@@ -345,7 +354,7 @@ class OpenRouterService {
             throw OpenRouterError.invalidResponse
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let (data, response) = try await serverSession.data(from: url)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
             throw OpenRouterError.httpError(statusCode)
@@ -363,14 +372,14 @@ class OpenRouterService {
                 hook: s.hook,
                 context: s.context,
                 soWhat: s.soWhat,
-                deepDive: s.deepDive,
+                deepDive: s.deepDive ?? (s.hook + " " + s.context),
                 keyStat: s.keyStat,
                 keyFacts: s.keyFacts,
-                source: s.source,
-                sourceURL: s.sourceURL,
-                sources: s.sources,
-                readTime: s.readTime,
-                timestamp: s.timestamp,
+                source: s.source ?? "",
+                sourceURL: s.sourceURL ?? "",
+                sources: s.sources ?? [s.source ?? ""],
+                readTime: s.readTime ?? "2 min read",
+                timestamp: s.timestamp ?? "Today",
                 imageURL: s.imageURL,
                 timeline: s.timeline,
                 fullCoverage: s.fullCoverage,
@@ -386,7 +395,7 @@ class OpenRouterService {
             throw OpenRouterError.invalidResponse
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let (data, response) = try await serverSession.data(from: url)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
             throw OpenRouterError.httpError(statusCode)
