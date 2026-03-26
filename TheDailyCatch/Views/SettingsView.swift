@@ -11,6 +11,10 @@ struct SettingsView: View {
     @State private var rankedTopics: [TopicInterest]
     @State private var selectedMotivation: ReadingMotivation?
     @State private var expandedSection: Int? = nil
+    @State private var showTestCodeAlert = false
+    @State private var testCodeInput = ""
+    @State private var testCodeMessage: String?
+    @State private var showTestCodeResult = false
     var onSave: () -> Void
     var onReset: () -> Void
 
@@ -229,6 +233,37 @@ struct SettingsView: View {
                         }
                         .padding(.bottom, 32)
 
+                        // ── BETA TESTING ──
+                        Text("BETA TESTING")
+                            .font(AppTheme.mono(10))
+                            .foregroundStyle(AppTheme.textMidGrey)
+                            .padding(.leading, 4)
+                            .padding(.bottom, 12)
+
+                        VStack(spacing: 8) {
+                            if let expiryStr = storeManager.betaExpiryString {
+                                actionRow(
+                                    icon: "checkmark.seal",
+                                    iconColor: Color(hex: "5BA89E"),
+                                    iconBg: Color(hex: "E8F5F1"),
+                                    label: "Beta access active",
+                                    sublabel: "Deep Catch unlocked until \(expiryStr)"
+                                ) { }
+                            }
+
+                            actionRow(
+                                icon: "key",
+                                iconColor: Color(hex: "5B7FBF"),
+                                iconBg: Color(hex: "EBF0F8"),
+                                label: "Enter test code",
+                                sublabel: "Unlock Deep Catch for testing"
+                            ) {
+                                testCodeInput = ""
+                                showTestCodeAlert = true
+                            }
+                        }
+                        .padding(.bottom, 32)
+
                         // ── RESTART APP ──
                         Button {
                             UserPreferencesService.shared.isOnboardingComplete = false
@@ -264,6 +299,32 @@ struct SettingsView: View {
                 } // VStack
             }
             .navigationBarHidden(true)
+            .alert("Enter Test Code", isPresented: $showTestCodeAlert) {
+                TextField("Code", text: $testCodeInput)
+                    .textInputAutocapitalization(.characters)
+                Button("Cancel", role: .cancel) { }
+                Button("Redeem") {
+                    let code = testCodeInput
+                    Task {
+                        do {
+                            let expiry = try await storeManager.redeemTestCode(code)
+                            let formatter = DateFormatter()
+                            formatter.dateStyle = .medium
+                            testCodeMessage = "Deep Catch unlocked until \(formatter.string(from: expiry))"
+                        } catch {
+                            testCodeMessage = error.localizedDescription
+                        }
+                        showTestCodeResult = true
+                    }
+                }
+            } message: {
+                Text("If you're a tester, enter the code that's been provided to you.")
+            }
+            .alert("Test Code", isPresented: $showTestCodeResult) {
+                Button("OK") { }
+            } message: {
+                Text(testCodeMessage ?? "")
+            }
         }
     }
 
