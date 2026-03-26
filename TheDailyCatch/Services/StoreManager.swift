@@ -64,6 +64,7 @@ final class StoreManager {
         }
 
         let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         guard let expiryDate = formatter.date(from: expiresAtString) else {
             throw URLError(.cannotParseResponse)
         }
