@@ -135,7 +135,7 @@ struct DailyBriefView: View {
     private var currentDateTimeString: String {
         let date = viewModel.lastRefresh ?? viewModel.briefDate ?? Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy 'at' h:mm a"
+        formatter.dateFormat = "MMM d, yyyy 'by' h:mm a"
         return formatter.string(from: date)
     }
 
