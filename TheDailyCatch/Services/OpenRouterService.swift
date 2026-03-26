@@ -350,7 +350,7 @@ class OpenRouterService {
     /// Fetch brief from The Daily Catch server (pre-generated, fast).
     func fetchBriefFromServer(topics: [TopicInterest], energyMode: EnergyMode) async throws -> [Story] {
         let topicParams = topics.map(\.rawValue).joined(separator: ",")
-        guard let url = URL(string: "\(serverBaseURL)/api/brief?topics=\(topicParams)&energy=\(energyMode.rawValue)") else {
+        guard let url = URL(string: "\(serverBaseURL)/api/brief?topics=\(topicParams)&energy=\(energyMode.rawValue)&deep=true") else {
             throw OpenRouterError.invalidResponse
         }
 
