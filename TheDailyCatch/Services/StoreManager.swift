@@ -9,9 +9,68 @@ final class StoreManager {
     // MARK: - State
 
     var products: [Product] = []
-    var isPremium: Bool = false
+    var hasActiveSubscription: Bool = false
     var isPurchasing: Bool = false
     var purchaseError: String?
+
+    /// True if the user has a StoreKit subscription OR an active beta test code
+    var isPremium: Bool {
+        hasActiveSubscription || isBetaTester
+    }
+
+    // MARK: - Beta Testing
+
+    var betaExpiryDate: Date? {
+        get { UserDefaults.standard.object(forKey: "betaExpiryDate") as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: "betaExpiryDate") }
+    }
+
+    var isBetaTester: Bool {
+        guard let expiry = betaExpiryDate else { return false }
+        return expiry > Date()
+    }
+
+    var betaExpiryString: String? {
+        guard let expiry = betaExpiryDate, expiry > Date() else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: expiry)
+    }
+
+    private let serverBaseURL = "https://the-daily-catch-server-production.up.railway.app"
+
+    func redeemTestCode(_ code: String) async throws -> Date {
+        guard let url = URL(string: "\(serverBaseURL)/api/redeem-code") else {
+            throw URLError(.badURL)
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["code": code])
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw URLError(.cannotParseResponse)
+        }
+
+        guard json["valid"] as? Bool == true,
+              let expiresAtString = json["expiresAt"] as? String else {
+            let errorMsg = json["error"] as? String ?? "Invalid code"
+            throw NSError(domain: "TestCode", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+        }
+
+        let formatter = ISO8601DateFormatter()
+        guard let expiryDate = formatter.date(from: expiresAtString) else {
+            throw URLError(.cannotParseResponse)
+        }
+
+        betaExpiryDate = expiryDate
+        return expiryDate
+    }
 
     // MARK: - Product IDs
 
@@ -105,20 +164,20 @@ final class StoreManager {
     // MARK: - Update Subscription Status
 
     func updateSubscriptionStatus() async {
-        var hasActiveSubscription = false
+        var hasActive = false
 
         for await result in Transaction.currentEntitlements {
             if let transaction = try? checkVerified(result) {
                 if transaction.productID == monthlyID || transaction.productID == yearlyID {
                     if transaction.revocationDate == nil {
-                        hasActiveSubscription = true
+                        hasActive = true
                     }
                 }
             }
         }
 
-        isPremium = hasActiveSubscription
-        UserDefaults.standard.set(hasActiveSubscription, forKey: "isPremium")
+        self.hasActiveSubscription = hasActive
+        UserDefaults.standard.set(isPremium, forKey: "isPremium")
     }
 
     // MARK: - Restore Purchases
