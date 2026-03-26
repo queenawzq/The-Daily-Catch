@@ -470,7 +470,7 @@ struct StoryDetailView: View {
                     .multilineTextAlignment(.center)
 
                 // Next catch
-                Text("New Catch Tomorrow")
+                Text(nextCatchText)
                     .font(.custom("SpaceGrotesk-Light", size: 12).weight(.medium))
                     .foregroundStyle(Color(hex: "375BCD"))
 
@@ -492,5 +492,16 @@ struct StoryDetailView: View {
                 Spacer()
             }
         }
+    }
+
+    private var nextCatchText: String {
+        guard let next = viewModel.nextRefresh else { return "New Catch Tomorrow" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        let timeStr = formatter.string(from: next)
+        if Calendar.current.isDateInToday(next) {
+            return "New Catch Today at \(timeStr)"
+        }
+        return "New Catch Tomorrow at \(timeStr)"
     }
 }

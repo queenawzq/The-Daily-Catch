@@ -133,10 +133,21 @@ struct DailyBriefView: View {
     }
 
     private var currentDateTimeString: String {
-        let date = viewModel.briefDate ?? Date()
+        let date = viewModel.lastRefresh ?? viewModel.briefDate ?? Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy 'by' h:mm a"
+        formatter.dateFormat = "MMM d, yyyy 'at' h:mm a"
         return formatter.string(from: date)
+    }
+
+    private var nextCatchText: String {
+        guard let next = viewModel.nextRefresh else { return "Next Catch Tomorrow" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        let timeStr = formatter.string(from: next)
+        if Calendar.current.isDateInToday(next) {
+            return "Next Catch Today at \(timeStr)"
+        }
+        return "Next Catch Tomorrow at \(timeStr)"
     }
 
     // MARK: - Progress
@@ -191,7 +202,7 @@ struct DailyBriefView: View {
                 .font(.custom("SpaceGrotesk-Light", size: 14).weight(.medium))
                 .foregroundStyle(AppTheme.textDark.opacity(0.6))
 
-            Text("NEXT CATCH TOMORROW")
+            Text(nextCatchText.uppercased())
                 .font(AppTheme.mono(11, weight: .bold))
                 .foregroundStyle(AppTheme.textDark.opacity(0.4))
                 .padding(.horizontal, 16)
