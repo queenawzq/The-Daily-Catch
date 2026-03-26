@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CompletionView: View {
+    var nextRefresh: Date?
     var onRefresh: () -> Void
 
     var body: some View {
@@ -48,7 +49,7 @@ struct CompletionView: View {
                     .multilineTextAlignment(.center)
 
                 // Next catch badge
-                Text("New Catch Tomorrow")
+                Text(nextCatchText)
                     .font(AppTheme.mono(11, weight: .medium))
                     .foregroundStyle(AppTheme.textDark.opacity(0.5))
                     .padding(.horizontal, 16)
@@ -72,5 +73,16 @@ struct CompletionView: View {
                 .padding(.bottom, 48)
             }
         }
+    }
+
+    private var nextCatchText: String {
+        guard let next = nextRefresh else { return "New Catch Tomorrow" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        let timeStr = formatter.string(from: next)
+        if Calendar.current.isDateInToday(next) {
+            return "New Catch Today at \(timeStr)"
+        }
+        return "New Catch Tomorrow at \(timeStr)"
     }
 }

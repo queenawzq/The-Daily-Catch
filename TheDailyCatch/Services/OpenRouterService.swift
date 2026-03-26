@@ -411,6 +411,27 @@ class OpenRouterService {
         )
     }
 
+    // MARK: - Schedule
+
+    struct ScheduleResponse: Codable {
+        let lastRefresh: String?
+        let nextRefresh: String
+    }
+
+    func fetchSchedule() async throws -> (lastRefresh: Date?, nextRefresh: Date) {
+        guard let url = URL(string: "\(serverBaseURL)/api/schedule") else {
+            throw OpenRouterError.invalidResponse
+        }
+        let (data, _) = try await serverSession.data(from: url)
+        let schedule = try JSONDecoder().decode(ScheduleResponse.self, from: data)
+        let formatter = ISO8601DateFormatter()
+        let lastRefresh = schedule.lastRefresh.flatMap { formatter.date(from: $0) }
+        guard let nextRefresh = formatter.date(from: schedule.nextRefresh) else {
+            throw OpenRouterError.parsingFailed
+        }
+        return (lastRefresh, nextRefresh)
+    }
+
     // MARK: - Deep Content (lazy-loaded per story)
 
     struct DeepContent {
