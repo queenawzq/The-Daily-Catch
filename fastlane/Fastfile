@@ -12,13 +12,22 @@ platform :ios do
       in_house: false
     )
 
-    # Auto-bump build number to the next available on TestFlight
-    current = latest_testflight_build_number(
+    # Auto-bump build number: take max of TestFlight and local Info.plist, then +1.
+    # Guards against latest_testflight_build_number returning 0/low values when the
+    # API can't see prior builds, which would otherwise regress CFBundleVersion.
+    testflight_build = latest_testflight_build_number(
       api_key: api_key,
-      app_identifier: "com.dailycatch.app"
-    )
+      app_identifier: "com.dailycatch.app",
+      initial_build_number: 0
+    ).to_i
+    local_build = get_info_plist_value(
+      path: "TheDailyCatch/Info.plist",
+      key: "CFBundleVersion"
+    ).to_i
+    next_build = [testflight_build, local_build].max + 1
+    UI.message("TestFlight build: #{testflight_build}, local build: #{local_build}, next: #{next_build}")
     increment_build_number(
-      build_number: current + 1,
+      build_number: next_build,
       xcodeproj: "TheDailyCatch.xcodeproj"
     )
 
