@@ -10,6 +10,8 @@ class DailyBriefViewModel {
     var isLoadingDeepContent: Bool = false
     var error: String?
     var briefDate: Date?
+    var lastRefresh: Date?
+    var nextRefresh: Date?
     private var deepContentLoadedIds: Set<UUID> = []
 
     private let apiService = OpenRouterService.shared
@@ -57,9 +59,11 @@ class DailyBriefViewModel {
             }
             briefDate = cached.generatedAt
             loadReadState()
+            Task { await loadSchedule() }
             return
         }
         await refreshBrief()
+        Task { await loadSchedule() }
     }
 
     private static let categoryColorMap: [String: String] = [
@@ -169,6 +173,16 @@ class DailyBriefViewModel {
             // Silent fail — user can retry by toggling deep mode
         }
         isLoadingDeepContent = false
+    }
+
+    func loadSchedule() async {
+        do {
+            let schedule = try await apiService.fetchSchedule()
+            lastRefresh = schedule.lastRefresh
+            nextRefresh = schedule.nextRefresh
+        } catch {
+            // Silent fail — schedule is non-critical
+        }
     }
 
     func restart() {
