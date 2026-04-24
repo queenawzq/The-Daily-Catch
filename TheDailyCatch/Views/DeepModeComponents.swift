@@ -19,8 +19,8 @@ struct DeepDiveView: View {
                 .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                 .foregroundStyle(darkText)
 
-            // Key stat card
-            if let stat = keyStat {
+            // Key stat card (skip if "number" is actually a long sentence, not a real stat)
+            if let stat = keyStat, stat.number.count <= 10 {
                 HStack(alignment: .top, spacing: 14) {
                     Text(cleanText(stat.number))
                         .font(.custom("Lora", size: 42).weight(.bold))
