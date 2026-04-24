@@ -4,6 +4,7 @@ enum AppState {
     case splash
     case onboardingIntro
     case onboardingQuestions
+    case onboardingNotifications
     case onboardingComplete
     case mainFeed
 }
@@ -13,6 +14,7 @@ struct TheDailyCatchApp: App {
     @State private var appState: AppState = UserPreferencesService.shared.isOnboardingComplete ? .mainFeed : .splash
     @State private var viewModel = DailyBriefViewModel()
     @State private var storeManager = StoreManager.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -30,6 +32,11 @@ struct TheDailyCatchApp: App {
 
                 case .onboardingQuestions:
                     OnboardingView {
+                        withAnimation { appState = .onboardingNotifications }
+                    }
+
+                case .onboardingNotifications:
+                    OnboardingNotificationsView {
                         withAnimation { appState = .onboardingComplete }
                     }
 
@@ -48,6 +55,11 @@ struct TheDailyCatchApp: App {
                 }
             }
             .environment(storeManager)
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    Task { await NotificationService.shared.syncWithPreferences() }
+                }
+            }
         }
     }
 }

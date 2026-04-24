@@ -11,6 +11,15 @@ struct SettingsView: View {
     @State private var rankedTopics: [TopicInterest]
     @State private var selectedMotivation: ReadingMotivation?
     @State private var expandedSection: Int? = nil
+    @State private var notificationsEnabled: Bool = UserPreferencesService.shared.notificationsEnabled
+    @State private var reengagementEnabled: Bool = UserPreferencesService.shared.reengagementNotificationsEnabled
+    @State private var showRestartConfirmation = false
+    @State private var notificationTime: Date = {
+        var components = DateComponents()
+        components.hour = UserPreferencesService.shared.notificationHour
+        components.minute = UserPreferencesService.shared.notificationMinute
+        return Calendar.current.date(from: components) ?? Date()
+    }()
     @State private var showTestCodeAlert = false
     @State private var testCodeInput = ""
     @State private var testCodeMessage: String?
@@ -181,6 +190,16 @@ struct SettingsView: View {
                         }
                         .padding(.bottom, 32)
 
+                        // ── NOTIFICATIONS ──
+                        Text("NOTIFICATIONS")
+                            .font(AppTheme.mono(10))
+                            .foregroundStyle(AppTheme.textMidGrey)
+                            .padding(.leading, 4)
+                            .padding(.bottom, 12)
+
+                        notificationsCard
+                            .padding(.bottom, 32)
+
                         // ── FEEDBACK & SUPPORT ──
                         Text("FEEDBACK & SUPPORT")
                             .font(AppTheme.mono(10))
@@ -266,9 +285,7 @@ struct SettingsView: View {
 
                         // ── RESTART APP ──
                         Button {
-                            UserPreferencesService.shared.isOnboardingComplete = false
-                            dismiss()
-                            onReset()
+                            showRestartConfirmation = true
                         } label: {
                             Text("RESTART APP")
                                 .font(AppTheme.mono(14, weight: .bold))
@@ -281,6 +298,16 @@ struct SettingsView: View {
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 6))
                                 .shadow(color: Color.black.opacity(0.25), radius: 2, x: 2, y: 2)
+                        }
+                        .alert("Restart The Daily Catch?", isPresented: $showRestartConfirmation) {
+                            Button("Cancel", role: .cancel) {}
+                            Button("Restart", role: .destructive) {
+                                UserPreferencesService.shared.isOnboardingComplete = false
+                                dismiss()
+                                onReset()
+                            }
+                        } message: {
+                            Text("This will take you back through onboarding. Your preferences will be reset.")
                         }
 
                         // ── VERSION ──
@@ -484,6 +511,185 @@ struct SettingsView: View {
     }
 
     // MARK: - Action Row
+
+    // MARK: - Notifications Card
+
+    private var notificationsCard: some View {
+        VStack(spacing: 0) {
+            // Master toggle row
+            HStack(spacing: 14) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(AppTheme.orangeSoft)
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "bell.fill")
+                        .font(.system(size: 15))
+                        .foregroundStyle(Color(hex: "D4772C"))
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Daily reminder")
+                        .font(AppTheme.body(14).weight(.semibold))
+                        .foregroundStyle(AppTheme.textDark)
+                    Text("A nudge when your catch is ready")
+                        .font(AppTheme.body(11).weight(.medium))
+                        .foregroundStyle(AppTheme.textMidGrey)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Toggle("", isOn: $notificationsEnabled)
+                    .labelsHidden()
+                    .tint(ctaBlue)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+
+            if notificationsEnabled {
+                Rectangle()
+                    .fill(Color(hex: "E8E4DD"))
+                    .frame(height: 1)
+                    .padding(.horizontal, 16)
+
+                // Time picker row
+                HStack {
+                    Text("Remind me at")
+                        .font(AppTheme.body(14).weight(.semibold))
+                        .foregroundStyle(AppTheme.textDark)
+
+                    Spacer()
+
+                    DatePicker(
+                        "",
+                        selection: $notificationTime,
+                        displayedComponents: [.hourAndMinute]
+                    )
+                    .labelsHidden()
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+
+                Rectangle()
+                    .fill(Color(hex: "E8E4DD"))
+                    .frame(height: 1)
+                    .padding(.horizontal, 16)
+
+                // Re-engagement toggle
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\"We miss you\" nudge")
+                            .font(AppTheme.body(14).weight(.semibold))
+                            .foregroundStyle(AppTheme.textDark)
+                        Text("If you skip 3 days in a row")
+                            .font(AppTheme.body(11).weight(.medium))
+                            .foregroundStyle(AppTheme.textMidGrey)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: $reengagementEnabled)
+                        .labelsHidden()
+                        .tint(ctaBlue)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+
+                Rectangle()
+                    .fill(Color(hex: "E8E4DD"))
+                    .frame(height: 1)
+                    .padding(.horizontal, 16)
+
+                // iOS settings deep link
+                Button {
+                    NotificationService.shared.openSystemSettings()
+                } label: {
+                    HStack {
+                        Text("System notification settings")
+                            .font(AppTheme.body(14).weight(.semibold))
+                            .foregroundStyle(AppTheme.textDark)
+                        Spacer()
+                        Image("ExternalLinkIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                            .foregroundStyle(AppTheme.textDark.opacity(0.3))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 14)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white)
+        )
+        .onChange(of: notificationsEnabled) { _, newValue in
+            handleMasterToggleChange(newValue)
+        }
+        .onChange(of: reengagementEnabled) { _, newValue in
+            UserPreferencesService.shared.reengagementNotificationsEnabled = newValue
+            if newValue {
+                NotificationService.shared.scheduleReengagementReminder()
+            } else {
+                NotificationService.shared.cancelReengagementReminder()
+            }
+        }
+        .onChange(of: notificationTime) { _, newValue in
+            let components = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+            let hour = components.hour ?? 8
+            let minute = components.minute ?? 0
+            UserPreferencesService.shared.notificationHour = hour
+            UserPreferencesService.shared.notificationMinute = minute
+            if notificationsEnabled {
+                NotificationService.shared.scheduleDailyReminder(hour: hour, minute: minute)
+            }
+        }
+    }
+
+    private func handleMasterToggleChange(_ newValue: Bool) {
+        let prefs = UserPreferencesService.shared
+        let service = NotificationService.shared
+        if newValue {
+            Task {
+                let status = await service.currentAuthorizationStatus()
+                if status == .notDetermined {
+                    let granted = await service.requestAuthorization()
+                    await MainActor.run {
+                        if granted {
+                            prefs.notificationsEnabled = true
+                            service.scheduleDailyReminder(hour: prefs.notificationHour, minute: prefs.notificationMinute)
+                            if prefs.reengagementNotificationsEnabled {
+                                service.scheduleReengagementReminder()
+                            }
+                        } else {
+                            notificationsEnabled = false
+                            prefs.notificationsEnabled = false
+                        }
+                    }
+                } else if status == .denied {
+                    await MainActor.run {
+                        notificationsEnabled = false
+                        prefs.notificationsEnabled = false
+                        service.openSystemSettings()
+                    }
+                } else {
+                    await MainActor.run {
+                        prefs.notificationsEnabled = true
+                        service.scheduleDailyReminder(hour: prefs.notificationHour, minute: prefs.notificationMinute)
+                        if prefs.reengagementNotificationsEnabled {
+                            service.scheduleReengagementReminder()
+                        }
+                    }
+                }
+            }
+        } else {
+            prefs.notificationsEnabled = false
+            service.cancelDailyReminder()
+            service.cancelReengagementReminder()
+        }
+    }
 
     private func actionRow(icon: String, iconColor: Color, iconBg: Color, label: String, sublabel: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {

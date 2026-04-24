@@ -17,6 +17,7 @@
 		AA200003 /* BriefCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200004 /* BriefCacheService.swift */; };
 		AA200005 /* UserPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200006 /* UserPreferencesService.swift */; };
 		AA200007 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200008 /* StoreManager.swift */; };
+		AA200009 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200010 /* NotificationService.swift */; };
 		AA300001 /* DailyBriefViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA300002 /* DailyBriefViewModel.swift */; };
 		AA400001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400002 /* OnboardingView.swift */; };
 		AA400003 /* DailyBriefView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400004 /* DailyBriefView.swift */; };
@@ -29,6 +30,8 @@
 		AA400017 /* StoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400018 /* StoryDetailView.swift */; };
 		AA400019 /* FishingAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400020 /* FishingAnimationView.swift */; };
 		AA400021 /* DeepModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400022 /* DeepModeComponents.swift */; };
+		AA400023 /* ReviewPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400024 /* ReviewPromptView.swift */; };
+		AA400025 /* OnboardingNotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400026 /* OnboardingNotificationsView.swift */; };
 		AA500001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500002 /* AppTheme.swift */; };
 		AA600001 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA600002 /* Secrets.plist */; };
 		AA700001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA700002 /* Assets.xcassets */; };
@@ -54,6 +57,7 @@
 		AA200004 /* BriefCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefCacheService.swift; sourceTree = "<group>"; };
 		AA200006 /* UserPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesService.swift; sourceTree = "<group>"; };
 		AA200008 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		AA200010 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		AA300002 /* DailyBriefViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefViewModel.swift; sourceTree = "<group>"; };
 		AA400002 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		AA400004 /* DailyBriefView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBriefView.swift; sourceTree = "<group>"; };
@@ -66,6 +70,8 @@
 		AA400018 /* StoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryDetailView.swift; sourceTree = "<group>"; };
 		AA400020 /* FishingAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FishingAnimationView.swift; sourceTree = "<group>"; };
 		AA400022 /* DeepModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepModeComponents.swift; sourceTree = "<group>"; };
+		AA400024 /* ReviewPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptView.swift; sourceTree = "<group>"; };
+		AA400026 /* OnboardingNotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNotificationsView.swift; sourceTree = "<group>"; };
 		AA500002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		AA600002 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 		AA700002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -144,6 +150,7 @@
 				AA200004 /* BriefCacheService.swift */,
 				AA200006 /* UserPreferencesService.swift */,
 				AA200008 /* StoreManager.swift */,
+				AA200010 /* NotificationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -170,6 +177,8 @@
 				AA400018 /* StoryDetailView.swift */,
 				AA400020 /* FishingAnimationView.swift */,
 				AA400022 /* DeepModeComponents.swift */,
+				AA400024 /* ReviewPromptView.swift */,
+				AA400026 /* OnboardingNotificationsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -268,6 +277,7 @@
 				AA200003 /* BriefCacheService.swift in Sources */,
 				AA200005 /* UserPreferencesService.swift in Sources */,
 				AA200007 /* StoreManager.swift in Sources */,
+				AA200009 /* NotificationService.swift in Sources */,
 				AA300001 /* DailyBriefViewModel.swift in Sources */,
 				AA400001 /* OnboardingView.swift in Sources */,
 				AA400003 /* DailyBriefView.swift in Sources */,
@@ -280,6 +290,8 @@
 				AA400017 /* StoryDetailView.swift in Sources */,
 				AA400019 /* FishingAnimationView.swift in Sources */,
 				AA400021 /* DeepModeComponents.swift in Sources */,
+				AA400023 /* ReviewPromptView.swift in Sources */,
+				AA400025 /* OnboardingNotificationsView.swift in Sources */,
 				AA500001 /* AppTheme.swift in Sources */,
 				AA900001 /* TextHelpers.swift in Sources */,
 			);

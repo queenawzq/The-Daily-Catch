@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct StoryDetailView: View {
     @Bindable var viewModel: DailyBriefViewModel
@@ -13,8 +14,10 @@ struct StoryDetailView: View {
     @State private var viewedIndices: Set<Int> = []
     @State private var showPaywall = false
     @Environment(StoreManager.self) private var storeManager
+    @Environment(\.requestReview) private var requestReview
     @State private var pricingIsYearly = true
     @State private var isScrollingCoverage = false
+    @State private var showReviewPrompt = false
 
     private let bgColor = Color(hex: "D6D6D6")
     private let darkText = Color(hex: "2A2A2A")
@@ -84,6 +87,32 @@ struct StoryDetailView: View {
             if showCaughtUp {
                 caughtUpView
                     .transition(.move(edge: .trailing))
+            }
+
+            if showReviewPrompt {
+                ReviewPromptView(
+                    onLoveIt: {
+                        let prefs = UserPreferencesService.shared
+                        prefs.hasPromptedForReview = true
+                        prefs.reviewPromptDeclinedAt = nil
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showReviewPrompt = false
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                            requestReview()
+                        }
+                    },
+                    onNotReally: {
+                        let prefs = UserPreferencesService.shared
+                        prefs.hasPromptedForReview = true
+                        prefs.reviewPromptDeclinedAt = Date()
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showReviewPrompt = false
+                        }
+                    }
+                )
+                .transition(.opacity)
+                .zIndex(100)
             }
         }
         .simultaneousGesture(
@@ -173,6 +202,23 @@ struct StoryDetailView: View {
                 }
             }
         }
+        .onChange(of: showCaughtUp) { _, newValue in
+            guard newValue else { return }
+            let prefs = UserPreferencesService.shared
+            prefs.caughtUpCount += 1
+            if prefs.shouldShowReviewPrompt {
+                // Mark as prompted + soft-declined now so the prompt won't
+                // reappear if the user swipes away without tapping a button.
+                // The Yes/No handlers overwrite this with the correct state.
+                prefs.hasPromptedForReview = true
+                prefs.reviewPromptDeclinedAt = Date()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showReviewPrompt = true
+                    }
+                }
+            }
+        }
         }
     }
 
@@ -255,6 +301,14 @@ struct StoryDetailView: View {
 
             Spacer()
 
+            // Share button
+            ShareLink(item: shareText, subject: Text(story.headline)) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 15.4, weight: .bold))
+                    .foregroundStyle(darkText)
+                    .frame(width: 32, height: 32)
+            }
+
             // Close button
             Button(action: onClose) {
                 Image(systemName: "xmark")
@@ -266,6 +320,10 @@ struct StoryDetailView: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 8)
         .padding(.top, 16)
+    }
+
+    private var shareText: String {
+        "\(story.headline)\n\n\(story.hook)\n\nRead the full catch on The Daily Catch: https://apps.apple.com/us/app/the-daily-catch-news-reader/id6759816685"
     }
 
     // MARK: - Page Indicator
@@ -411,6 +469,7 @@ struct StoryDetailView: View {
             .padding(.top, 16)
         }
         .id(currentIndex)
+        .scrollDisabled(!storeManager.isPremium && isDeepMode && showPaywall)
     }
 
     // MARK: - Caught Up View
