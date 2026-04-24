@@ -25,3 +25,9 @@ Carthage/Build/
 
 # Secrets
 Secrets.plist
+
+# fastlane — local env + generated artifacts
+fastlane/.env
+fastlane/report.xml
+fastlane/README.md
+*.p8
