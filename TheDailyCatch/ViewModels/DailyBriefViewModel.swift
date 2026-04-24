@@ -79,21 +79,26 @@ class DailyBriefViewModel {
         do {
             // Try server first (pre-generated, fast), fall back to direct API
             let fetched: [Story]
+            let start = Date()
             do {
                 fetched = try await apiService.fetchBriefFromServer(
                     topics: prefs.selectedTopics,
                     energyMode: prefs.selectedEnergyMode
                 )
-                print("[DailyBrief] Loaded from server")
+                let elapsed = Date().timeIntervalSince(start)
+                print("[DailyBrief] Loaded from server in \(String(format: "%.2f", elapsed))s")
             } catch {
-                print("[DailyBrief] Server fetch failed (\(error)), falling back to direct API")
+                let elapsed = Date().timeIntervalSince(start)
+                print("[DailyBrief] Server fetch failed after \(String(format: "%.2f", elapsed))s (\(error)), falling back to direct API")
+                let fallbackStart = Date()
                 fetched = try await apiService.fetchBrief(
                     topics: prefs.selectedTopics,
                     energyMode: prefs.selectedEnergyMode,
                     lifeStage: prefs.selectedLifeStage,
                     motivation: prefs.selectedMotivation
                 )
-                print("[DailyBrief] Loaded from direct API")
+                let fallbackElapsed = Date().timeIntervalSince(fallbackStart)
+                print("[DailyBrief] Loaded from direct API in \(String(format: "%.2f", fallbackElapsed))s")
             }
             let brief = DailyBrief(
                 stories: fetched,
@@ -104,6 +109,12 @@ class DailyBriefViewModel {
             cacheService.saveBrief(brief)
             stories = fetched
             briefDate = brief.generatedAt
+            // Mark stories that already have deep content (from server with ?deep=true)
+            for story in fetched {
+                if story.timeline != nil || story.fullCoverage != nil {
+                    deepContentLoadedIds.insert(story.id)
+                }
+            }
             storiesRead = []
             UserDefaults.standard.removeObject(forKey: "storiesRead")
         } catch {
@@ -123,18 +134,23 @@ class DailyBriefViewModel {
         do {
             // Try server first, fall back to direct API
             let deep: OpenRouterService.DeepContent
+            let start = Date()
             do {
                 deep = try await apiService.fetchDeepContentFromServer(storyId: story.id.uuidString)
-                print("[DailyBrief] Deep content loaded from server")
+                let elapsed = Date().timeIntervalSince(start)
+                print("[DailyBrief] Deep content loaded from server in \(String(format: "%.2f", elapsed))s")
             } catch {
-                print("[DailyBrief] Server deep fetch failed (\(error)), falling back to direct API")
+                let elapsed = Date().timeIntervalSince(start)
+                print("[DailyBrief] Server deep fetch failed after \(String(format: "%.2f", elapsed))s (\(error)), falling back to direct API")
+                let fallbackStart = Date()
                 deep = try await apiService.fetchDeepContent(
                     headline: story.headline,
                     hook: story.hook,
                     context: story.context,
                     sources: story.sources
                 )
-                print("[DailyBrief] Deep content loaded from direct API")
+                let fallbackElapsed = Date().timeIntervalSince(fallbackStart)
+                print("[DailyBrief] Deep content loaded from direct API in \(String(format: "%.2f", fallbackElapsed))s")
             }
             stories[index].timeline = deep.timeline
             stories[index].fullCoverage = deep.fullCoverage
