@@ -369,6 +369,7 @@ struct StoryDetailView: View {
                             .font(AppTheme.body(15.5).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
+                            .textSelection(.enabled)
                     }
                 }
 
@@ -385,6 +386,7 @@ struct StoryDetailView: View {
                             .font(AppTheme.body(15.5).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
+                            .textSelection(.enabled)
                     }
                 }
 
@@ -427,6 +429,7 @@ struct StoryDetailView: View {
                             .font(AppTheme.body(15.5).weight(.medium))
                             .foregroundStyle(darkText.opacity(0.65))
                             .lineSpacing(5)
+                            .textSelection(.enabled)
                     }
                     .padding(16)
                     .padding(.trailing, 24)

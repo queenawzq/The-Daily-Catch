@@ -54,6 +54,7 @@ struct DeepDiveView: View {
                                 .font(AppTheme.body(15.5).weight(.medium))
                                 .foregroundStyle(darkText.opacity(0.65))
                                 .lineSpacing(5)
+                                .textSelection(.enabled)
                         }
                     }
                 }
@@ -66,6 +67,7 @@ struct DeepDiveView: View {
                         .font(AppTheme.body(15.5).weight(.medium))
                         .foregroundStyle(darkText.opacity(0.65))
                         .lineSpacing(5)
+                        .textSelection(.enabled)
                 }
             }
         }
@@ -139,6 +141,7 @@ struct TimelineView: View {
                                     .font(AppTheme.body(15.5).weight(.medium))
                                     .foregroundStyle(darkText.opacity(0.65))
                                     .lineSpacing(5)
+                                    .textSelection(.enabled)
                             }
                             .padding(.bottom, index < visibleEvents.count - 1 ? 16 : 0)
                         }
@@ -455,6 +458,7 @@ struct WhatToWatchView: View {
                     .font(AppTheme.body(15.5).weight(.medium))
                     .foregroundStyle(darkText.opacity(0.65))
                     .lineSpacing(5)
+                    .textSelection(.enabled)
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -484,6 +488,7 @@ struct AnnotatedTextView: View {
                 .foregroundStyle(darkText.opacity(0.65))
                 .lineSpacing(5)
                 .tint(darkText.opacity(0.65))
+                .textSelection(.enabled)
                 .environment(\.openURL, OpenURLAction { url in
                     let termId = url.absoluteString
                         .replacingOccurrences(of: "term://", with: "")
