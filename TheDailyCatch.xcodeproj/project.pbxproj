@@ -32,6 +32,7 @@
 		AA400021 /* DeepModeComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400022 /* DeepModeComponents.swift */; };
 		AA400023 /* ReviewPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400024 /* ReviewPromptView.swift */; };
 		AA400025 /* OnboardingNotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400026 /* OnboardingNotificationsView.swift */; };
+		AA400027 /* SelectableText.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400028 /* SelectableText.swift */; };
 		AA500001 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500002 /* AppTheme.swift */; };
 		AA600001 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA600002 /* Secrets.plist */; };
 		AA700001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA700002 /* Assets.xcassets */; };
@@ -72,6 +73,7 @@
 		AA400022 /* DeepModeComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepModeComponents.swift; sourceTree = "<group>"; };
 		AA400024 /* ReviewPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptView.swift; sourceTree = "<group>"; };
 		AA400026 /* OnboardingNotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNotificationsView.swift; sourceTree = "<group>"; };
+		AA400028 /* SelectableText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableText.swift; sourceTree = "<group>"; };
 		AA500002 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		AA600002 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 		AA700002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				AA400022 /* DeepModeComponents.swift */,
 				AA400024 /* ReviewPromptView.swift */,
 				AA400026 /* OnboardingNotificationsView.swift */,
+				AA400028 /* SelectableText.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -292,6 +295,7 @@
 				AA400021 /* DeepModeComponents.swift in Sources */,
 				AA400023 /* ReviewPromptView.swift in Sources */,
 				AA400025 /* OnboardingNotificationsView.swift in Sources */,
+				AA400027 /* SelectableText.swift in Sources */,
 				AA500001 /* AppTheme.swift in Sources */,
 				AA900001 /* TextHelpers.swift in Sources */,
 			);

@@ -365,11 +365,7 @@ struct StoryDetailView: View {
                     if isDeepMode, let terms = story.linkedTerms, !terms.isEmpty {
                         AnnotatedTextView(text: cleanText(story.hook), terms: terms)
                     } else {
-                        Text(isDeepMode ? cleanText(story.hook) : truncateToSentences(story.hook, max: 2))
-                            .font(AppTheme.body(15.5).weight(.medium))
-                            .foregroundStyle(darkText.opacity(0.65))
-                            .lineSpacing(5)
-                            .textSelection(.enabled)
+                        SelectableText(attributedText: .storyBody(isDeepMode ? cleanText(story.hook) : truncateToSentences(story.hook, max: 2)))
                     }
                 }
 
@@ -382,11 +378,7 @@ struct StoryDetailView: View {
                     if isDeepMode, let terms = story.linkedTerms, !terms.isEmpty {
                         AnnotatedTextView(text: cleanText(story.context), terms: terms)
                     } else {
-                        Text(isDeepMode ? cleanText(story.context) : truncateToSentences(story.context, max: 2))
-                            .font(AppTheme.body(15.5).weight(.medium))
-                            .foregroundStyle(darkText.opacity(0.65))
-                            .lineSpacing(5)
-                            .textSelection(.enabled)
+                        SelectableText(attributedText: .storyBody(isDeepMode ? cleanText(story.context) : truncateToSentences(story.context, max: 2)))
                     }
                 }
 
@@ -425,11 +417,7 @@ struct StoryDetailView: View {
                             .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                             .foregroundStyle(Color(hex: "375BCD"))
 
-                        Text(cleanText(story.soWhat))
-                            .font(AppTheme.body(15.5).weight(.medium))
-                            .foregroundStyle(darkText.opacity(0.65))
-                            .lineSpacing(5)
-                            .textSelection(.enabled)
+                        SelectableText(attributedText: .storyBody(cleanText(story.soWhat)))
                     }
                     .padding(16)
                     .padding(.trailing, 24)

@@ -50,11 +50,7 @@ struct DeepDiveView: View {
                                 .font(AppTheme.body(15.5).weight(.medium))
                                 .foregroundStyle(darkText.opacity(0.3))
 
-                            Text(cleanText(fact))
-                                .font(AppTheme.body(15.5).weight(.medium))
-                                .foregroundStyle(darkText.opacity(0.65))
-                                .lineSpacing(5)
-                                .textSelection(.enabled)
+                            SelectableText(attributedText: .storyBody(cleanText(fact)))
                         }
                     }
                 }
@@ -63,11 +59,7 @@ struct DeepDiveView: View {
                 if let terms = linkedTerms, !terms.isEmpty {
                     AnnotatedTextView(text: cleanText(deepDive), terms: terms)
                 } else {
-                    Text(cleanText(deepDive))
-                        .font(AppTheme.body(15.5).weight(.medium))
-                        .foregroundStyle(darkText.opacity(0.65))
-                        .lineSpacing(5)
-                        .textSelection(.enabled)
+                    SelectableText(attributedText: .storyBody(cleanText(deepDive)))
                 }
             }
         }
@@ -137,11 +129,7 @@ struct TimelineView: View {
                                 Text(event.date)
                                     .font(AppTheme.mono(11))
                                     .foregroundStyle(timelineBlue)
-                                Text(cleanText(event.description))
-                                    .font(AppTheme.body(15.5).weight(.medium))
-                                    .foregroundStyle(darkText.opacity(0.65))
-                                    .lineSpacing(5)
-                                    .textSelection(.enabled)
+                                SelectableText(attributedText: .storyBody(cleanText(event.description)))
                             }
                             .padding(.bottom, index < visibleEvents.count - 1 ? 16 : 0)
                         }
@@ -454,11 +442,7 @@ struct WhatToWatchView: View {
                     .font(.custom("SpaceGrotesk-Light", size: 13.5).weight(.bold))
                     .foregroundStyle(AppTheme.orangeAccent)
 
-                Text(cleanText(text))
-                    .font(AppTheme.body(15.5).weight(.medium))
-                    .foregroundStyle(darkText.opacity(0.65))
-                    .lineSpacing(5)
-                    .textSelection(.enabled)
+                SelectableText(attributedText: .storyBody(cleanText(text)))
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -483,13 +467,12 @@ struct AnnotatedTextView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(annotatedText)
-                .font(AppTheme.body(15.5).weight(.medium))
-                .foregroundStyle(darkText.opacity(0.65))
-                .lineSpacing(5)
-                .tint(darkText.opacity(0.65))
-                .textSelection(.enabled)
-                .environment(\.openURL, OpenURLAction { url in
+            SelectableText(
+                attributedText: annotatedText,
+                linkTextAttributes: [
+                    .foregroundColor: UIColor(red: 0x2A/255.0, green: 0x2A/255.0, blue: 0x2A/255.0, alpha: 0.65)
+                ],
+                onLinkTap: { url in
                     let termId = url.absoluteString
                         .replacingOccurrences(of: "term://", with: "")
                         .removingPercentEncoding ?? ""
@@ -500,8 +483,9 @@ struct AnnotatedTextView: View {
                             expandedTerm = terms.first { $0.term == termId }
                         }
                     }
-                    return .handled
-                })
+                    return true
+                }
+            )
 
             if let term = expandedTerm {
                 HStack(alignment: .top, spacing: 10) {
@@ -537,17 +521,38 @@ struct AnnotatedTextView: View {
         }
     }
 
-    private var annotatedText: AttributedString {
-        var result = AttributedString(text)
+    private var annotatedText: NSAttributedString {
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 5
+        let descriptor = UIFontDescriptor(name: "SpaceGrotesk-Light", size: 15.5)
+            .addingAttributes([
+                .traits: [UIFontDescriptor.TraitKey.weight: UIFont.Weight.medium.rawValue]
+            ])
+        let bodyFont = UIFont(descriptor: descriptor, size: 15.5)
+        let bodyColor = UIColor(red: 0x2A/255.0, green: 0x2A/255.0, blue: 0x2A/255.0, alpha: 0.65)
+        let underlineColor = UIColor(red: 0x5B/255.0, green: 0x7F/255.0, blue: 0xBF/255.0, alpha: 1.0)
+
+        let result = NSMutableAttributedString(string: text, attributes: [
+            .font: bodyFont,
+            .foregroundColor: bodyColor,
+            .paragraphStyle: style
+        ])
+
+        let nsString = text as NSString
         for term in terms {
-            var searchStart = result.startIndex
-            while searchStart < result.endIndex {
-                let remaining = result[searchStart..<result.endIndex]
-                guard let range = remaining.range(of: term.term, options: .caseInsensitive) else { break }
-                result[range].link = URL(string: "term://" + (term.term.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? term.term))
-                result[range].underlineStyle = Text.LineStyle(pattern: .dot)
-                result[range].underlineColor = UIColor(termBlue)
-                searchStart = range.upperBound
+            var searchRange = NSRange(location: 0, length: nsString.length)
+            while searchRange.location < nsString.length {
+                let found = nsString.range(of: term.term, options: .caseInsensitive, range: searchRange)
+                if found.location == NSNotFound { break }
+                if let url = URL(string: "term://" + (term.term.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? term.term)) {
+                    result.addAttributes([
+                        .link: url,
+                        .underlineStyle: NSUnderlineStyle.single.rawValue | NSUnderlineStyle.patternDot.rawValue,
+                        .underlineColor: underlineColor
+                    ], range: found)
+                }
+                searchRange.location = found.location + found.length
+                searchRange.length = nsString.length - searchRange.location
             }
         }
         return result
