@@ -21,9 +21,14 @@ struct SelectableText: UIViewRepresentable {
         tv.backgroundColor = .clear
         tv.textContainerInset = .zero
         tv.textContainer.lineFragmentPadding = 0
+        tv.textContainer.widthTracksTextView = true
+        tv.textContainer.lineBreakMode = .byWordWrapping
         tv.dataDetectorTypes = []
         tv.adjustsFontForContentSizeCategory = false
         tv.delegate = context.coordinator
+        // Let SwiftUI constrain width so text wraps; pin height to laid-out content.
+        tv.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        tv.setContentHuggingPriority(.defaultLow, for: .horizontal)
         tv.setContentCompressionResistancePriority(.required, for: .vertical)
         tv.setContentHuggingPriority(.required, for: .vertical)
         return tv
@@ -32,11 +37,18 @@ struct SelectableText: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         if !(uiView.attributedText?.isEqual(to: attributedText) ?? false) {
             uiView.attributedText = attributedText
+            uiView.invalidateIntrinsicContentSize()
         }
         if let linkTextAttributes {
             uiView.linkTextAttributes = linkTextAttributes
         }
         context.coordinator.onLinkTap = onLinkTap
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
+        guard let width = proposal.width, width.isFinite, width > 0 else { return nil }
+        let fitted = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        return CGSize(width: width, height: ceil(fitted.height))
     }
 
     func makeCoordinator() -> Coordinator {
